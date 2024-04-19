@@ -1,0 +1,142 @@
+image: python:3.10
+
+variables:
+  ECR_URL: 735341528488.dkr.ecr.us-east-1.amazonaws.com/zenith-testgenai-ecr
+
+before_script:
+  - pip install poetry awscli
+  - cd TestGenAI
+  - poetry install
+  - export COMMIT_HASH=$(git rev-parse --short HEAD)
+  - aws --version
+  - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID_SANDBOX
+  - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY_SANDBOX
+  - aws configure set default.region $AWS_DEFAULT_REGION
+
+stages:
+  - code_quality
+  # - model_preparation
+  # - model_training
+  # - model_evaluation
+  - test
+  - build
+  - deploy
+#  - monitoring
+
+code_quality:
+  stage: code_quality
+  script:
+    - poetry add flake8
+    - poetry run flake8 # Run flake8 for linting
+  allow_failure: true # Optionally allow this job to fail without affecting the rest of the CI pipeline
+
+# # TODO: This stage is done locally, waiting for an actual model to be used
+
+# model_preparation:
+#   stage: model_preparation
+#   script:
+#     - echo "Retrieving and preparing datasets from S3"
+
+#     # Code Analysis Dataset
+#     - aws s3 cp s3://your-bucket-name/data1-path data/CodeAnalysis.json
+
+#     # Test Generation Dataset
+#     - aws s3 cp s3://your-bucket-name/data2-path data/TestGeneration.json
+
+#     # Code Suggestion Dataset
+#     - aws s3 cp s3://your-bucket-name/data3-path data/CodeSuggestion.json
+#     - poetry run python src/validate_datasets.py
+
+#   artifacts:
+#     paths:
+#       - data/CodeAnalysis.json/
+#       - data/TestGeneration.json/
+#       - data/CodeSuggestion.json/
+
+#   only:
+#     - train
+
+# TODO: Pipeline still not done, Cloud Model and Model Metadat left, waiting on s3 bucket and first MLFlow run
+# model_training:
+#   stage: model_training
+#   script:
+#     - echo "Training models"
+#     - poetry run python src/train_models.py
+#   only:
+#     - train
+
+# TODO:As there is no concrete way to measure an LLM performance, I'll be waiting on this stage.
+
+# model_evaluation:
+#   stage: model_evaluation
+#   script:
+#     - echo "Evaluating models"
+#     - poetry run python src/evaluate_model.py # Replace with your model evaluation script
+#   artifacts:
+#     paths:
+#       - /local/path/to/evaluation_results/ # Adjust to where your script outputs evaluation results
+#   dependencies:
+#     - model_training # Ensures this job uses the artifacts from model_training
+#   only:
+#     - train # or any other branch you prefer
+
+test:
+  stage: test
+  script:
+    - echo "Running unit tests"
+    - poetry run pytest test/
+
+
+# Todo: Waiting on the ecr only
+build:
+  stage: build
+  image: docker:19.03.12
+  services:
+    - docker:19.03.12-dind
+  before_script:
+    - apk add --no-cache git python3 py3-pip curl
+    - python3 -m venv venv
+    - source venv/bin/activate
+    - pip install awscli
+    - cd TestGenAI
+    - export COMMIT_HASH=$(git rev-parse --short HEAD)
+    - aws --version # Verify AWS CLI installation
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID_SANDBOX
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY_SANDBOX
+    - aws configure set default.region $AWS_DEFAULT_REGION
+  image: docker:latest
+  script:
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_URL
+    - echo "Building Docker image"
+    - docker build -t testgenai:$COMMIT_HASH .
+    - docker tag testgenai:$COMMIT_HASH $ECR_URL:$COMMIT_HASH # Tagging for ECR
+    - echo "Docker image tagged for ECR"
+
+# TODO: Waiting on the ecr only
+deploy:
+  stage: deploy
+  image: docker:19.03.12
+  services:
+    - docker:19.03.12-dind
+  before_script:
+    - apk add --no-cache git python3 py3-pip curl
+    - python3 -m venv venv
+    - source venv/bin/activate
+    - pip install awscli
+    - cd TestGenAI
+    - export COMMIT_HASH=$(git rev-parse --short HEAD)
+    - aws --version # Verify AWS CLI installation
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID_SANDBOX
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY_SANDBOX
+    - aws configure set default.region $AWS_DEFAULT_REGION
+  image: docker:latest
+  script:
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_URL
+    - echo "Pushing Docker image to ECR"
+    - docker build -t testgenai:$COMMIT_HASH . # Build the Docker image
+    - docker tag testgenai:$COMMIT_HASH $ECR_URL:$COMMIT_HASH # Tagging for ECR
+    - docker push $ECR_URL:$COMMIT_HASH # Push the image to ECR
+  only:
+    - manual
+
+# monitoring: {}
