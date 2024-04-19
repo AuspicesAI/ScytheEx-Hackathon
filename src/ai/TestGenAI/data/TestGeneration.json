@@ -1,0 +1,13 @@
+{
+  "code": "",
+  "language_label": "",
+  "overall_description": "",
+  "components": [
+    {
+      "type": "",       // Type of the component (e.g., "function", "class", "method")
+      "name": "",       // Name of the component
+      "description": "" // Description of what this component does
+    }
+    // ... additional components as needed
+  ]
+}

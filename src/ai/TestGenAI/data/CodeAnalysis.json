@@ -1,0 +1,86 @@
+[
+    {
+        "code": "from django.db import models\n\n# Create your models here.\n\nfrom django.urls import reverse  # Used to generate urls by reversing the URL patterns\n\n\nclass Genre(models.Model):\n    \"\"\"\n    Model representing a book genre (e.g. Science Fiction, Non Fiction).\n    \"\"\"\n\n    name = models.CharField(\n        max_length=200,\n        help_text=\"Enter a book genre (e.g. Science Fiction, French Poetry etc.)\",\n    )\n\n    def __str__(self):\n        \"\"\"\n        String for representing the Model object (in Admin site etc.)\n        \"\"\"\n        return self.name\n\n\nclass Language(models.Model):\n    \"\"\"\n    Model representing a Language (e.g. English, French, Japanese, etc.)\n    \"\"\"\n\n    name = models.CharField(\n        max_length=200,\n        help_text=\"Enter a the book's natural language (e.g. English, French, Japanese etc.)\",\n    )\n\n    def __str__(self):\n        \"\"\"\n        String for representing the Model object (in Admin site etc.)\n        \"\"\"\n        return self.name\n\n\nclass Book(models.Model):\n    \"\"\"\n    Model representing a book (but not a specific copy of a book).\n    \"\"\"\n\n    title = models.CharField(max_length=200)\n    author = models.ForeignKey(\"Author\", on_delete=models.SET_NULL, null=True)\n    # Foreign Key used because book can only have one author, but authors can have multiple books\n    # Author as a string rather than object because it hasn't been declared yet in file.\n    summary = models.TextField(\n        max_length=1000, help_text=\"Enter a brief description of the book\"\n    )\n    isbn = models.CharField(\n        \"ISBN\",\n        max_length=13,\n        help_text='13 Character <a href=\"https://www.isbn-international.org/content/what-isbn\">ISBN number</a>',\n    )\n    genre = models.ManyToManyField(Genre, help_text=\"Select a genre for this book\")\n    # ManyToManyField used because Subject can contain many books. Books can cover many subjects.\n    # Subject declared as an object because it has already been defined.\n    language = models.ForeignKey(\"Language\", on_delete=models.SET_NULL, null=True)\n\n    def display_genre(self):\n        \"\"\"\n        Creates a string for the Genre. This is required to display genre in Admin.\n        \"\"\"\n        return \", \".join([genre.name for genre in self.genre.all()[:3]])\n        display_genre.short_description = \"Genre\"\n\n    def get_absolute_url(self):\n        \"\"\"\n        Returns the url to access a particular book instance.\n        \"\"\"\n        return reverse(\"book-detail\", args=[str(self.id)])\n\n    def __str__(self):\n        \"\"\"\n        String for representing the Model object.\n        \"\"\"\n        return self.title\n\n\nimport uuid  # Required for unique book instances\nfrom datetime import date\n\nfrom django.contrib.auth.models import User  # Required to assign User as a borrower\n\n\nclass BookInstance(models.Model):\n    \"\"\"\n    Model representing a specific copy of a book (i.e. that can be borrowed from the library).\n    \"\"\"\n\n    id = models.UUIDField(\n        primary_key=True,\n        default=uuid.uuid4,\n        help_text=\"Unique ID for this particular book across whole library\",\n    )\n    book = models.ForeignKey(\"Book\", on_delete=models.SET_NULL, null=True)\n    imprint = models.CharField(max_length=200)\n    due_back = models.DateField(null=True, blank=True)\n    borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)\n\n    @property\n    def is_overdue(self):\n        if self.due_back and date.today() > self.due_back:\n            return True\n        return False\n\n    LOAN_STATUS = (\n        (\"d\", \"Maintenance\"),\n        (\"o\", \"On loan\"),\n        (\"a\", \"Available\"),\n        (\"r\", \"Reserved\"),\n    )\n\n    status = models.CharField(\n        max_length=1,\n        choices=LOAN_STATUS,\n        blank=True,\n        default=\"d\",\n        help_text=\"Book availability\",\n    )\n\n    class Meta:\n        ordering = [\"due_back\"]\n        permissions = ((\"can_mark_returned\", \"Set book as returned\"),)\n\n    def __str__(self):\n        \"\"\"\n        String for representing the Model object.\n        \"\"\"\n        # return '%s (%s)' % (self.id,self.book.title)\n        return \"{0} ({1})\".format(self.id, self.book.title)\n\n\nclass Author(models.Model):\n    \"\"\"\n    Model representing an author.\n    \"\"\"\n\n    first_name = models.CharField(max_length=100)\n    last_name = models.CharField(max_length=100)\n    date_of_birth = models.DateField(null=True, blank=True)\n    date_of_death = models.DateField(\"died\", null=True, blank=True)\n\n    class Meta:\n        ordering = [\"last_name\", \"first_name\"]\n\n    def get_absolute_url(self):\n        \"\"\"\n        Returns the url to access a particular author instance.\n        \"\"\"\n        return reverse(\"author-detail\", args=[str(self.id)])\n\n    def __str__(self):\n        \"\"\"\n        String for representing the Model object.\n        \"\"\"\n        return \"{0}, {1}\".format(self.last_name, self.first_name)\n",
+        "language_label": "Python",
+        "overall_description": "This code file defines several models for a library management system using Django. It includes models for Genre, Language, Book, BookInstance, and Author. Each model is equipped with fields defining its properties and methods for string representation and other functionalities. The Book and BookInstance models contain methods for specific functionalities like displaying genres and checking overdue status. Relationships are established through ForeignKey and ManyToManyField to link models like Book to Author and Genre.",
+        "components": [
+            {
+                "type": "class",
+                "name": "Genre",
+                "description": "A Django model representing a book genre. It contains a 'name' field and a string representation method."
+            },
+            {
+                "type": "class",
+                "name": "Language",
+                "description": "A Django model representing a language. It includes a 'name' field and a method to return the language's string representation."
+            },
+            {
+                "type": "class",
+                "name": "Book",
+                "description": "A model representing a book. It includes fields for title, author (ForeignKey), summary, ISBN, genre (ManyToManyField with Genre), and language (ForeignKey). It also has methods for displaying genres, getting a URL for a book instance, and returning the book's title as a string."
+            },
+            {
+                "type": "method",
+                "name": "display_genre",
+                "description": "A method in the Book class. It returns a string of up to three genre names associated with the book. Used for display purposes in the Admin interface."
+            },
+            {
+                "type": "method",
+                "name": "get_absolute_url",
+                "description": "A method in the Book class. It returns the URL for accessing a specific book instance. This is used in Django's admin interface and views."
+            },
+            {
+                "type": "class",
+                "name": "BookInstance",
+                "description": "A model for a specific copy of a book. It includes fields for ID, book (ForeignKey), imprint, due back date, borrower (ForeignKey to User), and status. It has a property 'is_overdue' to check if the book is overdue, and customizes model metadata."
+            },
+            {
+                "type": "property",
+                "name": "is_overdue",
+                "description": "A property in the BookInstance class. It checks if the book is overdue based on the current date and the 'due_back' date."
+            },
+            {
+                "type": "class",
+                "name": "Author",
+                "description": "A model representing an author. Includes fields for first and last name, date of birth, and date of death. It has methods for getting the URL for an author instance and returning the author's name as a string."
+            },
+            {
+                "type": "method",
+                "name": "get_absolute_url",
+                "description": "A method in the Author class. It returns the URL for accessing a specific author instance. Used in Django's admin interface and views."
+            }
+        ]
+    },
+    {
+        "code": "from django.db import models\n\n# Create your models here.\n\nfrom django.urls import reverse  # Used to generate urls by reversing the URL patterns\n\n\nclass Genre(models.Model):\n    \"\"\"\n    Model representing a book genre (e.g. Science Fiction, Non Fiction).\n    \"\"\"\n\n    name = models.CharField(\n        max_length=200,\n        help_text=\"Enter a book genre (e.g. Science Fiction, French Poetry etc.)\",\n    )\n\n    def __str__(self):\n        \"\"\"\n        String for representing the Model object (in Admin site etc.)\n        \"\"\"\n        return self.name\n\n\nclass Language(models.Model):\n    \"\"\"\n    Model representing a Language (e.g. English, French, Japanese, etc.)\n    \"\"\"\n\n    name = models.CharField(\n        max_length=200,\n        help_text=\"Enter a the book's natural language (e.g. English, French, Japanese etc.)\",\n    )\n\n    def __str__(self):\n        \"\"\"\n        String for representing the Model object (in Admin site etc.)\n        \"\"\"\n        return self.name\n\n\nclass Book(models.Model):\n    \"\"\"\n    Model representing a book (but not a specific copy of a book).\n    \"\"\"\n\n    title = models.CharField(max_length=200)\n    author = models.ForeignKey(\"Author\", on_delete=models.SET_NULL, null=True)\n    # Foreign Key used because book can only have one author, but authors can have multiple books\n    # Author as a string rather than object because it hasn't been declared yet in file.\n    summary = models.TextField(\n        max_length=1000, help_text=\"Enter a brief description of the book\"\n    )\n    isbn = models.CharField(\n        \"ISBN\",\n        max_length=13,\n        help_text='13 Character <a href=\"https://www.isbn-international.org/content/what-isbn\">ISBN number</a>',\n    )\n    genre = models.ManyToManyField(Genre, help_text=\"Select a genre for this book\")\n    # ManyToManyField used because Subject can contain many books. Books can cover many subjects.\n    # Subject declared as an object because it has already been defined.\n    language = models.ForeignKey(\"Language\", on_delete=models.SET_NULL, null=True)\n\n    def display_genre(self):\n        \"\"\"\n        Creates a string for the Genre. This is required to display genre in Admin.\n        \"\"\"\n        return \", \".join([genre.name for genre in self.genre.all()[:3]])\n        display_genre.short_description = \"Genre\"\n\n    def get_absolute_url(self):\n        \"\"\"\n        Returns the url to access a particular book instance.\n        \"\"\"\n        return reverse(\"book-detail\", args=[str(self.id)])\n\n    def __str__(self):\n        \"\"\"\n        String for representing the Model object.\n        \"\"\"\n        return self.title\n\n\nimport uuid  # Required for unique book instances\nfrom datetime import date\n\nfrom django.contrib.auth.models import User  # Required to assign User as a borrower\n\n\nclass BookInstance(models.Model):\n    \"\"\"\n    Model representing a specific copy of a book (i.e. that can be borrowed from the library).\n    \"\"\"\n\n    id = models.UUIDField(\n        primary_key=True,\n        default=uuid.uuid4,\n        help_text=\"Unique ID for this particular book across whole library\",\n    )\n    book = models.ForeignKey(\"Book\", on_delete=models.SET_NULL, null=True)\n    imprint = models.CharField(max_length=200)\n    due_back = models.DateField(null=True, blank=True)\n    borrower = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)\n\n    @property\n    def is_overdue(self):\n        if self.due_back and date.today() > self.due_back:\n            return True\n        return False\n\n    LOAN_STATUS = (\n        (\"d\", \"Maintenance\"),\n        (\"o\", \"On loan\"),\n        (\"a\", \"Available\"),\n        (\"r\", \"Reserved\"),\n    )\n\n    status = models.CharField(\n        max_length=1,\n        choices=LOAN_STATUS,\n        blank=True,\n        default=\"d\",\n        help_text=\"Book availability\",\n    )\n\n    class Meta:\n        ordering = [\"due_back\"]\n        permissions = ((\"can_mark_returned\", \"Set book as returned\"),)\n\n    def __str__(self):\n        \"\"\"\n        String for representing the Model object.\n        \"\"\"\n        # return '%s (%s)' % (self.id,self.book.title)\n        return \"{0} ({1})\".format(self.id, self.book.title)\n\n\nclass Author(models.Model):\n    \"\"\"\n    Model representing an author.\n    \"\"\"\n\n    first_name = models.CharField(max_length=100)\n    last_name = models.CharField(max_length=100)\n    date_of_birth = models.DateField(null=True, blank=True)\n    date_of_death = models.DateField(\"died\", null=True, blank=True)\n\n    class Meta:\n        ordering = [\"last_name\", \"first_name\"]\n\n    def get_absolute_url(self):\n        \"\"\"\n        Returns the url to access a particular author instance.\n        \"\"\"\n        return reverse(\"author-detail\", args=[str(self.id)])\n\n    def __str__(self):\n        \"\"\"\n        String for representing the Model object.\n        \"\"\"\n        return \"{0}, {1}\".format(self.last_name, self.first_name)\n",
+        "language_label": "Python",
+        "overall_description": "\n    This code is a part of a web application using Django, which models a library system. It includes models for Book, Genre, Language, BookInstance, and Author.\n    ",
+        "components": [
+            {
+                "type": "Class",
+                "name": "Genre",
+                "description": "\n            The Genre class represents a book genre, such as Science Fiction or French Poetry. It has a name attribute and a string representation that returns the name. This class is crucial for organizing books by genre and should be tested for proper functionality and validation.\n            "
+            },
+            {
+                "type": "Class",
+                "name": "Language",
+                "description": "\n            The Language class represents a book's natural language, such as English or French. It has a name attribute and a string representation that returns the name. This class is essential for organizing books by language and should be tested for proper functionality and validation.\n            "
+            },
+            {
+                "type": "Class",
+                "name": "Book",
+                "description": "\n            The Book class represents a book without a specific copy. It has title, author, summary, isbn, genre, and language attributes. The genre is a many-to-many relationship, and language is a foreign key. The class has a method, display_genre, to display the top three genres in the admin site. It also has get_absolute_url and string representation methods. This class is vital for the library system, and individual methods and attributes should be unit tested.\n            "
+            },
+            {
+                "type": "Class",
+                "name": "BookInstance",
+                "description": "\n            The BookInstance class represents a specific copy of a book that can be borrowed from the library. It has an ID, book (foreign key), imprint, due_back, borrower (foreign key), and status attributes. The class has a method, is_overdue, to check if a book is overdue. It also has a LOAN_STATUS tuple and a Meta class for ordering and permissions. The class has a string representation method. This class is crucial for tracking book borrowing and should be thoroughly tested for proper functionality and validation.\n            "
+            },
+            {
+                "type": "Class",
+                "name": "Author",
+                "description": "\n            The Author class represents an author with first_name, last_name, date_of_birth, and date_of_death attributes. The class has a Meta class for ordering, get_absolute_url, and string representation methods. This class is essential for organizing books by author and should be tested for proper functionality and validation.\n            "
+            }
+        ]
+    }
+]
