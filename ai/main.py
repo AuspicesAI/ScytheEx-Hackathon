@@ -1,87 +1,80 @@
 import os
-from dotenv_vault import load_dotenv
-import boto3
-from mistralai.client import MistralClient
-from zenith_models import CodeAnalysisModel, TestGenerationModel, CodeSuggestionModel
+import redis
+import pandas as pd
+import pickle
+from sklearn.preprocessing import LabelEncoder
+import xgboost as xgb
 
-load_dotenv(".env")
-api_key = os.environ["MISTRAL_API_KEY"]
-model = "mistral-small"
-client = MistralClient(api_key=api_key)
-user_consent = False
-s3 = boto3.client("s3")
-bucket_name = "zenith-testgenai-s3"
-code_analyzer = CodeAnalysisModel()
+train = pd.read_csv("data/training.csv")
+test = pd.read_csv("data/testing.csv")
+combined_df = pd.concat([train, test], ignore_index=True)
+df = combined_df.sample(frac=1).reset_index(drop=True)
+proto_encoder = LabelEncoder()
+service_encoder = LabelEncoder()
+state_encoder = LabelEncoder()
+attack_cat_encoder = LabelEncoder()
+attack_cat_decoder = LabelEncoder()
+attack_cat_decoder.fit(attack_cat_encoder.classes_)
+with open("16_XGBoost_model.pkl", "rb") as model_file:
+    model = pickle.load(model_file)
 
-
-def fetch_code_file_from_s3():
-    response = s3.list_objects_v2(Bucket=bucket_name, Prefix="code-queue")
-
-    if "Contents" in response:
-        for file_info in response["Contents"]:
-            if not file_info["Key"].endswith("/") and file_info["Size"] > 0:
-                s3_file_key = file_info["Key"]
-                file_name = file_info["Key"].split("/")[-1]
-
-        local_directory = "data/code"  # Directory where you want to save the file
-        if not os.path.exists(local_directory):
-            os.makedirs(local_directory)  # Create the directory if it doesn't exist
-
-        local_file_path = os.path.join(local_directory, file_name)
-        print(file_name)
-        # Download the file
-        s3.download_file(bucket_name, s3_file_key, local_file_path)
-
-        print(f"File '{file_name}' downloaded to '{local_file_path}'")
-    else:
-        print("No files found in the specified S3 bucket and prefix.")
-        file_name = None
-
-    return file_name
+df["proto"] = proto_encoder.fit_transform(df["proto"])
+df["service"] = service_encoder.fit_transform(df["service"])
+df["state"] = state_encoder.fit_transform(df["state"])
+df["attack_cat"] = attack_cat_encoder.fit_transform(df["attack_cat"])
 
 
-def upload_output_file_to_s3(file_name):
+def fetch_data_from_db():
+    # Setup Redis connection
+    redishost = "localhost"
+    redis_port = 6379
+    redis_db = 0
+    client = redis.Redis(host=redishost, port=redis_port, db=redis_db)
 
-    local_file_path = "outputs" + file_name
-    s3_path = "generated-tests" + file_name
-    s3.upload_file(local_file_path, bucket_name, s3_path)
+    # Setup Redis Pub/Sub
+    pubsub = client.pubsub()
+    pubsub.subscribe("packet_stream")
+
+    print("Subscribed to 'packet_stream', listening for new messages...")
+    try:
+        for message in pubsub.listen():
+            if message["type"] == "message":
+                print("Received Data:", message["data"].decode("utf-8"))
+
+    except KeyboardInterrupt:
+        print("Stopped listening to 'packet_stream'")
+    finally:
+        pubsub.close()
+        return message["data"].decode("utf-8")
 
 
-def save_user_data(code_analyzer_data):
-    code_analyzer.save_user_data(code_analyzer_data)
+def upload_output_to_db(input_data, prediction):
+    pass
 
 
-def analyze_code(code_filename):
+def prepare_input(input):
 
-    # code_filename = fetch_code_file()
+    input_df = pd.DataFrame(input)
+    input_df["proto"] = proto_encoder.fit_transform(input_df["proto"])
+    input_df["service"] = service_encoder.fit_transform(input_df["service"])
+    input_df["state"] = state_encoder.fit_transform(input_df["state"])
 
-    code_analyzer_prompt_filename = r"inputs/prompts/CodeAnalysis.txt"
-    code_analyzer_filename = os.path.join(r"data/code/", code_filename)
-    print(code_analyzer_filename)
-    code_analyzer_output_filename = r"outputs/CodeAnalysis_result.xml"
+    return input_df
 
-    code_analyzer.predict(
-        code_analyzer_prompt_filename,
-        code_analyzer_filename,
-        code_analyzer_output_filename,
-        client,
-        model,
-    )
 
-    return code_analyzer.format_output_data()
+def predict(input_data):
+    return model.predict(input_data)
+
+
+def prepare_output(output):
+    return attack_cat_decoder.inverse_transform(output)
 
 
 def main():
-
-    code_filename = fetch_code_file_from_s3()
-    # test_filename = "/test_" + code_filename
-
-    # upload_output_file_to_s3(test_filename)
-
-    code_analyzer_data = analyze_code(code_filename)
-
-    # if user_consent:
-    #     save_user_data(code_analyzer_data)
+    raw_data = fetch_data_from_db()
+    input_data = prepare_input(raw_data)
+    prediction = predict(input_data)
+    upload_output_to_db()
 
 
 if __name__ == "__main__":
