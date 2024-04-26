@@ -8,8 +8,8 @@ ScytheEx is a versatile cybersecurity solution designed to monitor network traff
 
 - [ ] Front-end Setup
 - [ ] Back-end Setup
-- [ ] AI Model Development
-- [ ] AI Running File Implementation
+- [x] AI Model Development
+- [x] AI Running File Implementation
 - [ ] Data Parsing from Network Packets
 - [ ] Demonstration of an Attack Scenario
 - [ ] Redis Database Setup

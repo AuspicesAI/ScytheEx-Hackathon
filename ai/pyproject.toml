@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "zenith-geni"
+name = "scytheEx AI Model"
 version = "0.1.0"
-description = "Zenith Test GenerativeAI for the zenith project"
+description = "scytheEx AI Model"
 authors = ["Yousinator <y.omusabeh@gmail.com>"]
 readme = "README.md"
 
@@ -18,6 +18,8 @@ boto3 = "^1.34.63"
 pytest = "^8.1.1"
 moto = "^5.0.4"
 seaborn = "^0.13.2"
+redis = "^5.0.3"
+xgboost = "^2.0.3"
 
 
 [build-system]
