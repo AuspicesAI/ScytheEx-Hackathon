@@ -1,6 +1,7 @@
-
+models/
 .env*
 .flaskenv*
 !.env.project
 !.env.vault
 mlruns/
+models/
