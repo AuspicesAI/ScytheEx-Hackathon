@@ -3,4 +3,4 @@
 .flaskenv*
 !.env.project
 !.env.vault
-/data/code/somefile.py
+mlruns/
