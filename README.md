@@ -1,5 +1,13 @@
 ![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/edfcdbb7-cdec-49b6-aacb-314bcc9faeda)
 
+## Main Features Checklist
+ - [ ] AI Model for Network Analysis
+ - [ ] UI
+ - [x] Running as Background Process
+ - [ ] Mitigation logic
+ - [ ] IP Blacklist
+ - [ ] Threat Intelligence [Optional]
+
 ## Overview
 
 ScytheEx is an advanced cybersecurity tool designed for real-time network traffic monitoring and threat analysis. Initially developed as a Linux service daemon and capable of deployment on Kubernetes bare metal, this versatile solution extends its functionality across various operating systems. 
@@ -10,7 +18,7 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
 
 - [ ] Front-end Setup
 - [x] Back-end Setup
-- [x] AI Model Development
+- [ ] AI Model Development
 - [x] AI Running File Implementation
 - [x] Data Parsing from Network Packets
 - [x] Demonstration of an Attack Scenario
