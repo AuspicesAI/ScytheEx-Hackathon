@@ -7,15 +7,15 @@ ScytheEx is a versatile cybersecurity solution designed to monitor network traff
 ## Task Checklist
 
 - [ ] Front-end Setup
-- [ ] Back-end Setup
+- [x] Back-end Setup
 - [x] AI Model Development
 - [x] AI Running File Implementation
-- [ ] Data Parsing from Network Packets
-- [ ] Demonstration of an Attack Scenario
-- [ ] Redis Database Setup
+- [x] Data Parsing from Network Packets
+- [x] Demonstration of an Attack Scenario
+- [x] Redis Database Setup
 - [ ] Integrating Front-end with Redis Database
-- [ ] Integrating AI Model with Redis Database
-- [ ] Integrating Traffic Analysis with Redis Database
+- [x] Integrating AI Model with Redis Database
+- [x] Integrating Traffic Analysis with Redis Database
 - [ ] Adding Mitigation Logic (Optional)
 - [ ] Incorporating Threat Intelligence Fields (Optional)
 - [ ] Documentation of All Components
