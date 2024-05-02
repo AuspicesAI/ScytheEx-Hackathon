@@ -1,21 +1,31 @@
 ![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/edfcdbb7-cdec-49b6-aacb-314bcc9faeda)
 
-## Project Overview
+## Main Features Checklist
+ - [ ] AI Model for Network Analysis
+ - [ ] UI
+ - [x] Running as Background Process
+ - [ ] Mitigation logic
+ - [ ] IP Blacklist
+ - [ ] Threat Intelligence [Optional]
 
-ScytheEx is a versatile cybersecurity solution designed to monitor network traffic and analyze threats in real-time. It operates across various operating systems and integrates AI-driven analytics for enhanced security.
+## Overview
+
+ScytheEx is an advanced cybersecurity tool designed for real-time network traffic monitoring and threat analysis. Initially developed as a Linux service daemon and capable of deployment on Kubernetes bare metal, this versatile solution extends its functionality across various operating systems. 
+
+ScytheEx integrates AI-driven analytics to detect activities post-attack, adhering to the philosophy that despite advanced protective measures like EDR or AV, malware may still execute on the system. The tool operates at this post-execution level to identify malicious activities and generate YARA rules, providing continuous feeds to enhance other detection tools and technologies.
 
 ## Task Checklist
 
 - [ ] Front-end Setup
-- [ ] Back-end Setup
-- [x] AI Model Development
+- [x] Back-end Setup
+- [ ] AI Model Development
 - [x] AI Running File Implementation
-- [ ] Data Parsing from Network Packets
-- [ ] Demonstration of an Attack Scenario
-- [ ] Redis Database Setup
+- [x] Data Parsing from Network Packets
+- [x] Demonstration of an Attack Scenario
+- [x] Redis Database Setup
 - [ ] Integrating Front-end with Redis Database
-- [ ] Integrating AI Model with Redis Database
-- [ ] Integrating Traffic Analysis with Redis Database
+- [x] Integrating AI Model with Redis Database
+- [x] Integrating Traffic Analysis with Redis Database
 - [ ] Adding Mitigation Logic (Optional)
 - [ ] Incorporating Threat Intelligence Fields (Optional)
 - [ ] Documentation of All Components
@@ -29,7 +39,7 @@ ScytheEx is a versatile cybersecurity solution designed to monitor network traff
 
 ### 2. Back-end and Traffic Monitoring
 
-- The back-end, written in C, captures real-time network traffic data from the operating system.
+- The back-end, written in C++, captures real-time network traffic data from the operating system.
 - This component parses the network packets to extract relevant data fields as specified (e.g., protocol, service, state).
 
 ### 3. Data Storage with Redis

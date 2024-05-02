@@ -9,6 +9,7 @@ train = pd.read_csv("data/training.csv")
 test = pd.read_csv("data/testing.csv")
 combined_df = pd.concat([train, test], ignore_index=True)
 df = combined_df.sample(frac=1).reset_index(drop=True)
+
 proto_encoder = LabelEncoder()
 service_encoder = LabelEncoder()
 state_encoder = LabelEncoder()
@@ -17,113 +18,140 @@ attack_cat_decoder = LabelEncoder()
 with open("models/16_XGBoost_model.pkl", "rb") as model_file:
     model = pickle.load(model_file)
 
-df["proto"] = proto_encoder.fit_transform(df["proto"])
-df["service"] = service_encoder.fit_transform(df["service"])
-df["state"] = state_encoder.fit_transform(df["state"])
-df["attack_cat"] = attack_cat_encoder.fit_transform(df["attack_cat"])
+
+protocol_encoder = LabelEncoder()
+flags_encoder = LabelEncoder()
+label_encoder = LabelEncoder()
+
+protocol_decoder = protocol_encoder.inverse_transform
+flags_decoder = flags_encoder.inverse_transform
+label_decoder = label_encoder.inverse_transform
+
+with open("models/Neris_XGBoost_model.pkl", "rb") as model_file:
+    model = pickle.load(model_file)
 
 
-def fetch_data_from_db():
-    # Setup Redis connection
-    r = redis.Redis(host="6.tcp.eu.ngrok.io", port=19939, db=0)
+# Setup Redis connection
+r = redis.Redis(host="5.tcp.eu.ngrok.io", port=16200, db=0)
 
-    # Subscribe to the channel
-    pubsub = r.pubsub()
-    pubsub.subscribe("processed_data_channel")
+# Subscribe to the channelcd ai
+pubsub = r.pubsub()
+pubsub.subscribe("processed_data_channel")
 
-    print("Subscribed to 'processed_data_channel'. Waiting for data...")
-    i = 0
-    # Listen for new messages
-    for message in pubsub.listen():
-        if message["type"] == "message":
-            i += 1
-            data = json.loads(message["data"])
-            print("Received data:", data)
-            if i == 1:
-                df = pd.DataFrame([data])  # Create DataFrame with the first message
-            else:
-                df = pd.concat(
-                    [df, pd.DataFrame([data])], ignore_index=True
-                )  # Concatenate subsequent messages
-
-            if i < 5:
-                return df
+print("Subscribed to 'processed_data_channel'. Waiting for data...")
 
 
-def upload_output_to_db(input_data, prediction):
-    pass
+
+def upload_to_redis(df, status):
+    redis_host = "localhost"
+    redis_port = 6380
+    redis_db = 0
+
+    # Add the array as a new column to the DataFrame
+    df["packet_status"] = status
+
+    # Convert DataFrame to JSON for publishing
+    df_json = df.to_json(orient="records")
+
+    # Create a Redis connection
+    r = redis.Redis(host=redis_host, port=redis_port, db=redis_db)
+
+    # Define the channel
+    channel = "prediction_channel"
+
+    # Publish DataFrame to the Redis channel
+    r.publish(channel, df_json)
+
+    print(f"Published updated DataFrame to Redis on channel '{channel}'.")
 
 
-def prepare_input(input_df):
+def prepare_df(raw_data):
     input_df = input_df.astype(
         {
-            "dur": "float64",
-            "synack": "float64",
-            "ackdat": "float64",
-            "stcpb": "int64",
-            "dtcpb": "int64",
-            "trans_depth": "int64",
-            "response_body_len": "int64",
-            "ct_src_dport_ltm": "int64",
-            "ct_dst_sport_ltm": "int64",
-            "is_ftp_login": "int64",
-            "ct_ftp_cmd": "int64",
-            "ct_flw_http_mthd": "int64",
-            "is_sm_ips_ports": "int64",
+            "Duration": "float64",
+            "Packets": "int64",
+            "Bytes": "int64",
+            "Flows": "int64",
+            "Source Port": "int64",
+            "Destination Port": "int64",
+            "Bytes per Packet": "float64",
+            "Packets per Second": "float64",
+            "Bytes per Second": "float64",
+            "Is Encrypted Traffic": "int64",
+            "Common Port Usage": "int64",
         }
     )
     titles = [
-        "dur",
-        "proto",
-        "service",
-        "state",
-        "stcpb",
-        "dtcpb",
-        "synack",
-        "ackdat",
-        "trans_depth",
-        "response_body_len",
-        "ct_src_dport_ltm",
-        "ct_dst_sport_ltm",
-        "is_ftp_login",
-        "ct_ftp_cmd",
-        "ct_flw_http_mthd",
-        "is_sm_ips_ports",
+        "Duration",
+        "Protocol",
+        "Flags",
+        "Packets",
+        "Bytes",
+        "Flows",
+        "Label",
+        "Source Port",
+        "Destination Port",
+        "Bytes per Packet",
+        "Packets per Second",
+        "Bytes per Second",
+        "Is Encrypted Traffic",
+        "Common Port Usage",
     ]
+    df = pd.DataFrame(raw_data)
+    df = df[titles]
 
-    tcp_state_mapping = {
-        "LISTEN": "no",  # No direct action, waiting state
-        "SYN_SENT": "REQ",  # Request sent, waiting for reply
-        "SYN_RECEIVED": "INT",  # Intermediate state, part of handshake
-        "ESTABLISHED": "CON",  # Connection successfully established
-        "FIN_WAIT_1": "FIN",  # In the process of closing
-        "FIN_WAIT_2": "FIN",  # In the process of closing
-        "CLOSE_WAIT": "CLO",  # Waiting to close the connection
-        "CLOSING": "CLO",  # In the process of closing
-        "LAST_ACK": "CLO",  # Final acknowledgement state in closing
-        "TIME_WAIT": "CLO",  # Waiting to ensure the remote TCP received the acknowledgment of its connection termination request
-        "CLOSED": "CLO",  # No connection state at all
-    }
-
-    input_df = input_df[titles]
-
-    input_df[input_df.select_dtypes(include="object").columns] = input_df[
-        input_df.select_dtypes(include="object").columns
-    ].apply(lambda x: x.str.lower())
-
-    services = df["service"].unique()
-    input_df["service"] = input_df["service"].apply(
-        lambda x: x if x in services else "-"
+    df["Duration"] = df["Duration"].replace(0.000, 0.001)
+    df["Bytes per Packet"] = df.apply(
+        lambda row: row["Bytes"] / row["Packets"] if row["Packets"] > 0 else 0, axis=1
+    )
+    # Calculate 'Packets per Second' and 'Bytes per Second' if duration is not zero
+    df["Packets per Second"] = df.apply(
+        lambda row: row["Packets"] / row["Duration"] if row["Duration"] > 0 else 0,
+        axis=1,
+    )
+    df["Bytes per Second"] = df.apply(
+        lambda row: row["Bytes"] / row["Duration"] if row["Duration"] > 0 else 0, axis=1
     )
 
-    states = df["state"].unique()
+    def clean_port(port):
+        try:
+            # Attempt to convert port to integer
+            return int(port)
+        except ValueError:
+            # If conversion fails, return 0
+            return 0
 
-    input_df["state"] = input_df["state"].map(tcp_state_mapping)
-    input_df["state"] = input_df["state"].apply(lambda x: x if x in states else "no")
+    df["Destination Port"] = df["Destination Port"].apply(clean_port)
 
-    input_df["proto"] = proto_encoder.transform(input_df["proto"])
-    input_df["service"] = service_encoder.transform(input_df["service"])
-    input_df["state"] = state_encoder.transform(input_df["state"])
+    def is_encrypted_protocol(port):
+        encrypted_ports = {443, 22, 993, 995, 465, 587, 636, 989, 990, 992, 1194, 500}
+        return 1 if port in encrypted_ports else 0
+
+    def is_common_port(port):
+        common_ports = {80, 443, 21, 22, 25, 110, 143, 3306, 3389, 5900, 53, 23}
+        return 1 if port in common_ports else 0
+
+    df["Destination Port"] = df["Destination Port"].astype(int)
+    df["Is Encrypted Traffic"] = df["Destination Port"].apply(is_encrypted_protocol)
+    df["Common Port Usage"] = df["Destination Port"].apply(is_common_port)
+    df.drop(["Destination IP", "Source IP"], axis=1, inplace=True)
+
+    return df
+
+
+def prepare_input(input_df):
+    try:
+        df["Protocol"] = protocol_encoder.transform(df["Protocol"])
+    except ValueError:
+        # Replace unknown labels with "RTP"
+        protocol_encoder.transform("RTP")
+
+
+    try:
+        df["Flags"] = protocol_encoder.transform(df["Flags"])
+    except ValueError:
+        # Replace unknown labels with "RTP"
+        protocol_encoder.transform("PAC_")
     print(input_df)
 
     return input_df
@@ -131,20 +159,20 @@ def prepare_input(input_df):
 
 def predict(input_data):
     prediction = model.predict(input_data)
-    return attack_cat_encoder.inverse_transform(prediction)
-
-
-def prepare_output(output):
-    return attack_cat_encoder.inverse_transform(output)
+    return label_encoder.inverse_transform(prediction)
 
 
 def main():
-    raw_data = fetch_data_from_db()
-    print(raw_data)
-    input_data = prepare_input(raw_data)
-    prediction = predict(input_data)
-    print(prediction)
-    # upload_output_to_db()
+    for message in pubsub.listen():
+        if message["type"] == "message":
+            data = json.loads(message["data"])
+            print("Received data:", data)
+            print(data)
+            df = prepare_df(data)
+            input_data = prepare_input(df)
+            prediction = predict(input_data)
+            input_data["id"] = data["id"]
+            upload_to_redis(input_data["id"], prediction)
 
 
 if __name__ == "__main__":
