@@ -5,3 +5,4 @@ models/
 !.env.vault
 mlruns/
 models/
+data/capture20110811.pcap.netflow.labeled
