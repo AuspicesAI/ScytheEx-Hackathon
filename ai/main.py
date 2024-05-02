@@ -10,6 +10,15 @@ test = pd.read_csv("data/testing.csv")
 combined_df = pd.concat([train, test], ignore_index=True)
 df = combined_df.sample(frac=1).reset_index(drop=True)
 
+proto_encoder = LabelEncoder()
+service_encoder = LabelEncoder()
+state_encoder = LabelEncoder()
+attack_cat_encoder = LabelEncoder()
+attack_cat_decoder = LabelEncoder()
+with open("models/16_XGBoost_model.pkl", "rb") as model_file:
+    model = pickle.load(model_file)
+
+
 protocol_encoder = LabelEncoder()
 flags_encoder = LabelEncoder()
 label_encoder = LabelEncoder()
@@ -30,6 +39,7 @@ pubsub = r.pubsub()
 pubsub.subscribe("processed_data_channel")
 
 print("Subscribed to 'processed_data_channel'. Waiting for data...")
+
 
 
 def upload_to_redis(df, status):
@@ -136,12 +146,12 @@ def prepare_input(input_df):
         # Replace unknown labels with "RTP"
         protocol_encoder.transform("RTP")
 
+
     try:
         df["Flags"] = protocol_encoder.transform(df["Flags"])
     except ValueError:
         # Replace unknown labels with "RTP"
         protocol_encoder.transform("PAC_")
-
     print(input_df)
 
     return input_df
