@@ -6,3 +6,4 @@ models/
 mlruns/
 models/
 data/capture20110811.pcap.netflow.labeled
+data/neris.csv
