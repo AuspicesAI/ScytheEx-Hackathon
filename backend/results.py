@@ -3,8 +3,8 @@ import redis
 
 def main():
     # Configure the Redis connection
-    redis_host = "5.tcp.eu.ngrok.io"
-    redis_port = 19779
+    redis_host = "0.tcp.eu.ngrok.io"
+    redis_port = 16959
 
     # Create a Redis connection
     r = redis.Redis(host=redis_host, port=redis_port, decode_responses=True)

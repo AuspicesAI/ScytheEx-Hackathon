@@ -50,19 +50,31 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
 
 2. **Enable Service**:
    - Run `systemctl enable scytheex` to enable ScytheEx service to automatically start at boot time.
-  
+
 ![Windows](https://github.com/AuspicesAI/ScytheEx/assets/75253629/e8cc8fba-903a-4f18-886b-4dab1ab8eeb7)
 
 ### Windows Host Setup
 
 1. **Download and Install**:
 
-   - Download the latest release from the ScytheEx repository.
-   - Install Python and required dependencies from `requirements.txt`.
+   - Download the latest release from [ScytheEx Repository](https://github.com/AuspicesAI/ScytheEx/releases).
+   - Ensure Python is installed on your system. If not, download and install it from [Python's official site](https://www.python.org/downloads/).
+   - Open a command prompt as Administrator and navigate to the directory where ScytheEx is downloaded.
+   - Install required Python dependencies:
+     ```bash
+     pip install -r requirements.txt
+     ```
 
 2. **Configure and Run**:
-   - Manually adjust the network interface settings in `config.toml` according to your system.
-   - Execute `setup_windows.bat` to configure and start ScytheEx using NSSM (the Non-Sucking Service Manager). This setup requires manual execution due to the need for specific configurations per system.
+
+   - Open the `config.toml` file located in your ScytheEx installation directory.
+   - Manually adjust the network interface settings under the appropriate section to correspond with your system.
+   - Run `setup_windows.bat` to configure and start ScytheEx as a service. Make sure to run the command prompt as Administrator:
+     ```bash
+     setup_windows.bat
+     ```
+
+   **Note**: Configuration of network settings and service setup may require specific permissions or adjustments depending on your system's security settings.
 
 ## Configuration (`config.toml`)
 
