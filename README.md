@@ -114,7 +114,7 @@ Detailed steps from initial data capture through to AI analysis and front-end in
 5. **Front-end Monitoring**: Provides a real-time dashboard for monitoring network status and alerts.
 6. **Continuous Updates**: Regularly updates AI models and system configurations to adapt to new threats and improve accuracy.
 
-## Optional Features and Future Enhancements
+## Future Enhancements
 
 - **Mitigation Strategies**: Automated system responses based on threat severity.
 - **Threat Intelligence**: Integration with real-time threat intelligence feeds to enhance detection capabilities.
