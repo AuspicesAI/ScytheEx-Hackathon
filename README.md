@@ -14,8 +14,12 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
 - AI-powered network traffic analysis.
 - Real-time threat detection and mitigation.
 - Background process management for continuous monitoring.
-- Integrated threat intelligence (optional).
+- Integrated threat intelligence.
 - Robust mitigation strategies including IP blacklisting.
+- Customizable configuration to fit your business need.
+- HTTP Server for visualization.
+- Support kubernetes deployments.
+- 3rd Party APIs usage (e.g: virus total, hybrid-analysis)
 
 ## Setup Instructions
 
