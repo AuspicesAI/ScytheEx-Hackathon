@@ -37,7 +37,6 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
    - Install Python and required dependencies from `requirements.txt`.
 
 2. **Configure and Run**:
-   - Modify `config.toml` to suit your network configuration.
    - Run `setup_windows.bat` to configure and start ScytheEx as a service using NSSM.
 
 ![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/cddd869a-1080-45d9-8668-dc05b0d41ea6)
