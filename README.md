@@ -28,7 +28,7 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
    - Modify the values in `values.yaml` as necessary, particularly the network interfaces and Redis settings.
    - Run `helm install scytheex ./scytheex-chart` to deploy to your Kubernetes cluster.
 
-![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/206688f6-36a8-4226-ac82-30bd702229e2)
+![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/577c469f-04e3-4bbb-8829-083ed1bc0659)
 
 ### Windows Host Setup
 
