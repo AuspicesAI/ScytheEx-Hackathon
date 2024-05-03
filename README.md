@@ -1,86 +1,124 @@
 ![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/edfcdbb7-cdec-49b6-aacb-314bcc9faeda)
 
-## Main Features Checklist
- - [ ] AI Model for Network Analysis
- - [ ] UI
- - [x] Running as Background Process
- - [ ] Mitigation logic
- - [ ] IP Blacklist
- - [ ] Threat Intelligence [Optional]
-
 ## Overview
 
-ScytheEx is an advanced cybersecurity tool designed for real-time network traffic monitoring and threat analysis. Initially developed as a Linux service daemon and capable of deployment on Kubernetes bare metal, this versatile solution extends its functionality across various operating systems. 
+ScytheEx is an advanced cybersecurity tool designed for real-time network traffic monitoring and threat analysis. Initially developed as a Linux service daemon and capable of deployment on Kubernetes bare metal, this versatile solution extends its functionality across various operating systems.
 
 ScytheEx integrates AI-driven analytics to detect activities post-attack, adhering to the philosophy that despite advanced protective measures like EDR or AV, malware may still execute on the system. The tool operates at this post-execution level to identify malicious activities and generate YARA rules, providing continuous feeds to enhance other detection tools and technologies.
 
-## Task Checklist
+### Main Features
 
-- [ ] Front-end Setup
-- [x] Back-end Setup
-- [ ] AI Model Development
-- [x] AI Running File Implementation
-- [x] Data Parsing from Network Packets
-- [x] Demonstration of an Attack Scenario
-- [x] Redis Database Setup
-- [ ] Integrating Front-end with Redis Database
-- [x] Integrating AI Model with Redis Database
-- [x] Integrating Traffic Analysis with Redis Database
-- [ ] Adding Mitigation Logic (Optional)
-- [ ] Incorporating Threat Intelligence Fields (Optional)
-- [ ] Documentation of All Components
+- AI-powered network traffic analysis.
+- Real-time threat detection and mitigation.
+- Background process management for continuous monitoring.
+- Integrated threat intelligence (optional).
+- Robust mitigation strategies including IP blacklisting.
+
+## Setup Instructions
+
+![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/11bdfe89-175d-4e1c-87df-2ec29fe5a32e)
+
+### Kubernetes Deployment using Helm
+
+1. **Prepare Your Environment**:
+
+   - Ensure Kubernetes cluster is set up and `kubectl` is configured.
+   - Install Helm on your system.
+
+2. **Deploy ScytheEx**:
+   - Clone the repository and navigate to the Helm chart directory.
+   - Modify the values in `values.yaml` as necessary, particularly the network interfaces and Redis settings.
+   - Run `helm install scytheex ./scytheex-chart` to deploy to your Kubernetes cluster.
+
+![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/e8cc8fba-903a-4f18-886b-4dab1ab8eeb7)
+
+### Windows Host Setup
+
+1. **Download and Install**:
+
+   - Download the latest release from the ScytheEx repository.
+   - Install Python and required dependencies from `requirements.txt`.
+
+2. **Configure and Run**:
+   - Run `setup_windows.bat` to configure and start ScytheEx as a service using NSSM.
+
+![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/cddd869a-1080-45d9-8668-dc05b0d41ea6)
+
+### Debian-Based Linux Host Setup
+
+1. **Installation**:
+
+   - Clone the ScytheEx repository.
+   - Run `setup_linux.sh`, which will install Python dependencies, set up the environment, and configure the systemd service.
+
+2. **Service Management**:
+   - Use `systemctl start scytheex` to start the service.
+   - Configure `scytheex.service` to ensure it starts on boot with `systemctl enable scytheex`.
+
+## Configuration (`config.toml`)
+
+The configuration file `config.toml` found in `/config` directory is central to customizing and controlling the behavior of the ScytheEx system. Below are details about each configurable section and setting:
+
+### `[ScytheEx]`
+
+- `network_interface`: Specify the network interface on which ScytheEx will capture traffic (e.g., `"eth0"` for Linux, `"Ethernet"` for Windows).
+- `use_threat_intel`: Enable to use real-time threat intelligence (uncomment and set to `true` to enable).
+- `threat_intel_sources`: URLs of threat intelligence feeds (uncomment and list sources to enable).
+- `log_directory`: The directory where logs will be stored.
+- `traffic_logs_path`: File path for storing traffic logs.
+- `error_logs_path`: File path for storing error logs.
+- `visualization_server`: URL of the visualization server if used (uncomment and set URL to enable).
+- `number_of_processes`: Number of worker processes for handling tasks.
+- `remote_logging_enabled`: Enable to log remotely (uncomment and set to `true` to enable).
+- `remote_logging_server`: URL of the remote logging server (uncomment and set URL to enable).
+- `user_whitelist`: List of IP addresses that are allowed unrestricted access.
+- `show_debug_messages`: Set to `true` to enable verbose logging for debugging purposes.
+
+### `[redis_traffic]`
+
+- `redis_traffic_host`: Hostname or IP address of the Redis server used for real-time data.
+- `redis_traffic_port`: Port number for the Redis server handling real-time data.
+- `redis_traffic_db_index`: Database index for the Redis server used for real-time data.
+- SSL settings (commented out by default):
+  - `ssl`: Enable SSL for secure connection (set to `true` to enable).
+  - `ssl_cert_reqs`: SSL certificate requirements.
+  - `ssl_ca_certs`: Path to the CA certificate.
+  - `ssl_certfile`: Path to the SSL certificate.
+  - `ssl_keyfile`: Path to the SSL key.
+
+### `[redis_results]`
+
+- `host`: Hostname or IP address of the Redis server used for storing AI analysis results.
+- `port`: Port number for the Redis server handling AI results.
+- `db_index`: Database index for the Redis server used for AI results.
+- Similar SSL settings as `[redis_traffic]` (commented out by default).
+
+### `[security]`
+
+- `enable_encryption`: Enable encryption for sensitive data within the application (set to `true` to enable).
+- `encryption_key_path`: Path to the encryption key file.
+
+### `[performance]`
+
+- `memory_optimization`: Enable to optimize memory usage (set to `true` to enable).
+- `cpu_priority`: Set the CPU priority level (e.g., `"high"`, `"normal"`).
 
 ## System Workflow
 
-### 1. Front-end Initialization
+Detailed steps from initial data capture through to AI analysis and front-end interaction:
 
-- The React-based front-end is served to users, providing a dashboard for monitoring network traffic, alerts, and analytics.
-- Users can interact with the UI to customize settings or initiate specific analyses.
+1. **Data Capture**: Captures real-time network traffic and parses data using custom packet analysis techniques.
+2. **Redis Integration**: Utilizes dual Redis setups for handling real-time data flow and AI analysis results efficiently.
+3. **AI Analysis**: Periodically processes data to identify potential threats using advanced machine learning algorithms.
+4. **Threat Response**: Implements automated responses based on analysis, such as updating firewall rules or isolating affected network segments.
+5. **Front-end Monitoring**: Provides a real-time dashboard for monitoring network status and alerts.
+6. **Continuous Updates**: Regularly updates AI models and system configurations to adapt to new threats and improve accuracy.
 
-### 2. Back-end and Traffic Monitoring
+## Future Enhancements
 
-- The back-end, written in C++, captures real-time network traffic data from the operating system.
-- This component parses the network packets to extract relevant data fields as specified (e.g., protocol, service, state).
-
-### 3. Data Storage with Redis
-
-- Extracted data from the back-end is pushed to a Redis database, which acts as a real-time data store.
-- Redis is configured to handle high-throughput and low-latency operations to ensure timely analysis.
-
-### 4. AI Model Analysis
-
-- The Python-based AI model periodically retrieves network traffic data from Redis.
-- The model analyzes the data, applying machine learning algorithms to detect anomalies or potential threats based on predefined rules and metrics.
-
-### 5. Result Processing and Response
-
-- Analysis results are pushed back to another Redis instance or the same with different data structuring, which might include threat levels, types of attacks detected, and other relevant metrics.
-- Depending on the results, automated mitigation strategies may be triggered (if implemented).
-
-### 6. Front-end Updates and User Interaction
-
-- The front-end continuously polls or listens for updates from Redis to display the latest analysis and alerts.
-- Users can view detailed reports, adjust system settings, or manually intervene in response to specific threats.
-
-### 7. Ongoing Monitoring and Updates
-
-- The system constantly monitors network traffic, with AI models adapting to new data and evolving threats.
-- System updates and new threat intelligence can be rolled out to enhance detection and response capabilities.
-
-### 8. Logging and Auditing
-
-- All actions, from traffic logging to alert responses, are documented for auditing and improvement purposes.
-- Logs are crucial for understanding past incidents and refining system performance and security measures.
-
-## Optional Components
-
-### Mitigation Logic
-
-- If a threat is detected, automated or suggested mitigation responses can be activated to protect the system.
-
-### Threat Intelligence Integration
-
-- Real-time data can be enriched with external threat intelligence feeds to improve detection accuracy.
+- **Mitigation Strategies**: Automated system responses based on threat severity.
+- **Threat Intelligence**: Integration with real-time threat intelligence feeds to enhance detection capabilities.
+- **Kubernetes Response**: Future feature to cordon off and drain infected Kubernetes nodes, preventing the spread of malware and automatically redistributing workloads.
 
 ## License
 
