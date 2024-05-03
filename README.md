@@ -59,6 +59,9 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
 
 ### Windows Host Setup
 
+> [!Warning]
+> Still not tested, will probably break.
+
 1. **Download and Install**:
 
    - Download the latest release from [ScytheEx Repository](https://github.com/AuspicesAI/ScytheEx/releases).
