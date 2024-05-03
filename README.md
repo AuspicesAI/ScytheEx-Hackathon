@@ -48,7 +48,7 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
 
 ## Configuration (`config.toml`)
 
-The configuration file `config.toml` is central to customizing and controlling the behavior of the ScytheEx system. Below are details about each configurable section and setting:
+The configuration file `config.toml` found in `/config` directory is central to customizing and controlling the behavior of the ScytheEx system. Below are details about each configurable section and setting:
 
 ### `[ScytheEx]`
 - `network_interface`: Specify the network interface on which ScytheEx will capture traffic (e.g., `"eth0"` for Linux, `"Ethernet"` for Windows).
