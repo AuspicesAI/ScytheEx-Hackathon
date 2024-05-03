@@ -7,7 +7,7 @@ ScytheEx is an advanced cybersecurity tool designed for real-time network traffi
 ScytheEx integrates AI-driven analytics to detect activities post-attack, adhering to the philosophy that despite advanced protective measures like EDR or AV, malware may still execute on the system. The tool operates at this post-execution level to identify malicious activities and generate YARA rules, providing continuous feeds to enhance other detection tools and technologies.
 
 > [!Warning]
-> ScytheEx project is still in an early stage which means that any feature changes are very welcome and anything can break, stable release is still not close.
+> ScytheEx project is still in an early stage which means that any feature changes are very welcome. Also note that anything can break, stable release is still not close.
 
 ### Main Features
 
