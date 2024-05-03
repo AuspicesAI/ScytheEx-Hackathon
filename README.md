@@ -30,19 +30,6 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
    - Modify the values in `values.yaml` as necessary, particularly the network interfaces and Redis settings.
    - Run `helm install scytheex ./scytheex-chart` to deploy to your Kubernetes cluster.
 
-![Windows](https://github.com/AuspicesAI/ScytheEx/assets/75253629/e8cc8fba-903a-4f18-886b-4dab1ab8eeb7)
-
-### Windows Host Setup
-
-1. **Download and Install**:
-
-   - Download the latest release from the ScytheEx repository.
-   - Install Python and required dependencies from `requirements.txt`.
-
-2. **Configure and Run**:
-   - Manually adjust the network interface settings in `config.toml` according to your system.
-   - Execute `setup_windows.bat` to configure and start ScytheEx using NSSM (the Non-Sucking Service Manager). This setup requires manual execution due to the need for specific configurations per system.
-
 ![Debian](https://github.com/AuspicesAI/ScytheEx/assets/75253629/cddd869a-1080-45d9-8668-dc05b0d41ea6)
 
 ### Debian-Based Linux Host Setup
@@ -55,9 +42,21 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
      ```
    - This script will clone the ScytheEx repository, install Python dependencies, set up the environment, and configure ScytheEx as a systemd service.
 
-2. **Service Management**:
-   - Use `systemctl start scytheex` to start the service.
-   - Configure `scytheex.service` to ensure it starts on boot with `systemctl enable scytheex`.
+2. **Enable Service**:
+   - Run `systemctl enable scytheex` to enable ScytheEx service to automatically start at boot time.
+  
+![Windows](https://github.com/AuspicesAI/ScytheEx/assets/75253629/e8cc8fba-903a-4f18-886b-4dab1ab8eeb7)
+
+### Windows Host Setup
+
+1. **Download and Install**:
+
+   - Download the latest release from the ScytheEx repository.
+   - Install Python and required dependencies from `requirements.txt`.
+
+2. **Configure and Run**:
+   - Manually adjust the network interface settings in `config.toml` according to your system.
+   - Execute `setup_windows.bat` to configure and start ScytheEx using NSSM (the Non-Sucking Service Manager). This setup requires manual execution due to the need for specific configurations per system.
 
 ## Configuration (`config.toml`)
 
