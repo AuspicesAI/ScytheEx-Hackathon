@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-data
+spec:
+  selector:
+    matchLabels:
+      app: redis-data
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis-data
+    spec:
+      containers:
+        - name: redis-traffic
+          image: redis:latest
+          ports:
+            - containerPort: 6379
+        - name: redis-results
+          image: redis:latest
+          ports:
+            - containerPort: 6380
+          Resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"

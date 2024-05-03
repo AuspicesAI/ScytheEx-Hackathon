@@ -5,16 +5,20 @@ import pickle
 from sklearn.preprocessing import LabelEncoder
 import json
 import time
+from sklearn.preprocessing import StandardScaler
 
 
 # Load the data
 # Since your data appears to be tab-separated, we use sep='\s+' which handles multiple spaces
-df = pd.read_csv("data/neris.csv")
+df = pd.read_csv("data/LogRegNeris.csv")
+dfs = pd.read_csv("data/EncoderNeris.csv")
+dfs.drop(["Label", "Unnamed: 0"], axis=1, inplace=True)
 
-with open("models/Neris_XGBoost_model.pkl", "rb") as model_file:
+with open("models/Neris_LogReg_model.pkl", "rb") as model_file:
     model = pickle.load(model_file)
 
-
+scaler = StandardScaler()
+scaler.fit(dfs)
 protocol_encoder = LabelEncoder()
 flags_encoder = LabelEncoder()
 label_encoder = LabelEncoder()
@@ -31,12 +35,16 @@ print(
 )
 
 
-with open("models/Neris_XGBoost_model.pkl", "rb") as model_file:
+with open("models/Neris_LogReg_model.pkl", "rb") as model_file:
     model = pickle.load(model_file)
 
 
 # Setup Redis connection
+<<<<<<< HEAD
 r = redis.Redis(host="2.tcp.eu.ngrok.io", port=16468, db=0)
+=======
+r = redis.Redis(host="7.tcp.eu.ngrok.io", port=13716, db=0)
+>>>>>>> 39e4a84a79c07a7dfd5458e9043564ec8eef750b
 
 # Subscribe to the channelcd ai
 pubsub = r.pubsub()
@@ -80,6 +88,7 @@ def prepare_df(raw_data):
             # If conversion fails, return 0
             return 0
 
+    raw_data["Flags"] = raw_data["Flags"][-1]
     df = pd.DataFrame(raw_data)
 
     df["Destination Port"] = df["Destination Port"].apply(clean_port)
@@ -115,9 +124,9 @@ def prepare_df(raw_data):
     df = df.astype(
         {
             "Duration": "float64",
-            "Packets": "int64",
-            "Bytes": "int64",
-            "Flows": "int64",
+            "Packets": "float64",
+            "Bytes": "float64",
+            "Flows": "float64",
             "Source Port": "int64",
             "Destination Port": "int64",
             "Bytes per Packet": "float64",
@@ -143,6 +152,7 @@ def prepare_df(raw_data):
         "Common Port Usage",
     ]
     df = df[titles]
+    df.drop(["Flows", "Duration", "Source Port", "Packets"], axis=1, inplace=True)
     return df
 
 
@@ -170,7 +180,8 @@ def prepare_input(df):
 
 
 def predict(input_data):
-    prediction = model.predict(input_data)
+    scaled_input_data = scaler.transform(input_data)
+    prediction = model.predict(scaled_input_data)
     return label_encoder.inverse_transform(prediction)
 
 
@@ -183,6 +194,7 @@ def main():
         i += 1
         if message["type"] == "message":
             data = json.loads(message["data"])
+            print(f'{data["Destination IP"]}: {data["Source IP"]}')
             df = prepare_df(data)
             input_data = prepare_input(pd.DataFrame(df.iloc[[0]]))
             print("\n\n########## New Prediction ##########")
@@ -191,12 +203,6 @@ def main():
             input_data["id"] = data["id"]
             # upload_to_redis(input_data["id"].copy(), prediction)
             print(f'{input_data["id"].copy()}: {prediction}')
-            results["Prediction"].append(prediction)  # Append prediction to the list
-
-            if i == 10:
-                # Convert list to pandas Series to use value_counts
-                prediction_series = pd.Series(results["Prediction"])
-                print(prediction_series.value_counts())
 
 
 # def main():
@@ -205,9 +211,45 @@ def main():
 #     dff.drop("Label", axis=1, inplace=True)
 #     print(dff)
 #     input_data = prepare_input(pd.DataFrame(dff.iloc[[0]]))
+#     data = {
+#         "Protocol": [10],
+#         "Flags": [28],
+#         "Bytes": [66.0],
+#         "Destination Port": [80],
+#         "Bytes per Packet": [66.0],
+#         "Packets per Second": [1000.0],
+#         "Bytes per Second": [66000.0],
+#         "Is Encrypted Traffic": [0],
+#         "Common Port Usage": [1],
+#     }
+#     input_data = pd.DataFrame(data)
 #     prediction = predict(input_data)
 #     # upload_to_redis(input_data["id"].copy(), prediction)
 #     print(f"{prediction}")
+
+
+# def main():
+#     data = {
+#         "id": "1714749086420-b2b7810a-4127-4df0-af2e-c2199845e225",
+#         "Duration": 73.30608129501343,
+#         "Protocol": "TCP",
+#         "Source IP": "192.168.1.13",
+#         "Source Port": 33199,
+#         "Destination IP": "192.229.221.95",
+#         "Destination Port": 80,
+#         "Flags": ["PA", "S", "A_"],
+#         "Packets": 3,
+#         "Bytes": 410,
+#         "Flows": 10,
+#     }
+#     df = prepare_df(data)
+#     input_data = prepare_input(pd.DataFrame(df.iloc[[0]]))
+#     print("\n\n########## New Prediction ##########")
+#     print(input_data)
+#     prediction = predict(input_data)
+#     input_data["id"] = data["id"]
+#     # upload_to_redis(input_data["id"].copy(), prediction)
+#     print(f'{input_data["id"].copy()}: {prediction}')
 
 
 if __name__ == "__main__":

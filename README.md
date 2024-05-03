@@ -2,11 +2,12 @@
 
 ## Overview
 
-ScytheEx is an advanced cybersecurity tool designed for real-time network traffic monitoring and threat analysis. Initially developed as a Linux service daemon and capable of deployment on Kubernetes bare metal, this versatile solution extends its functionality across various operating systems. 
+ScytheEx is an advanced cybersecurity tool designed for real-time network traffic monitoring and threat analysis. Initially developed as a Linux service daemon and capable of deployment on Kubernetes bare metal, this versatile solution extends its functionality across various operating systems.
 
 ScytheEx integrates AI-driven analytics to detect activities post-attack, adhering to the philosophy that despite advanced protective measures like EDR or AV, malware may still execute on the system. The tool operates at this post-execution level to identify malicious activities and generate YARA rules, providing continuous feeds to enhance other detection tools and technologies.
 
 ### Main Features
+
 - AI-powered network traffic analysis.
 - Real-time threat detection and mitigation.
 - Background process management for continuous monitoring.
@@ -20,6 +21,7 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
 ### Kubernetes Deployment using Helm
 
 1. **Prepare Your Environment**:
+
    - Ensure Kubernetes cluster is set up and `kubectl` is configured.
    - Install Helm on your system.
 
@@ -33,6 +35,7 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
 ### Windows Host Setup
 
 1. **Download and Install**:
+
    - Download the latest release from the ScytheEx repository.
    - Install Python and required dependencies from `requirements.txt`.
 
@@ -44,6 +47,7 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
 ### Debian-Based Linux Host Setup
 
 1. **Installation**:
+
    - Clone the ScytheEx repository.
    - Run `setup_linux.sh`, which will install Python dependencies, set up the environment, and configure the systemd service.
 
@@ -56,6 +60,7 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
 The configuration file `config.toml` found in `/config` directory is central to customizing and controlling the behavior of the ScytheEx system. Below are details about each configurable section and setting:
 
 ### `[ScytheEx]`
+
 - `network_interface`: Specify the network interface on which ScytheEx will capture traffic (e.g., `"eth0"` for Linux, `"Ethernet"` for Windows).
 - `use_threat_intel`: Enable to use real-time threat intelligence (uncomment and set to `true` to enable).
 - `threat_intel_sources`: URLs of threat intelligence feeds (uncomment and list sources to enable).
@@ -70,6 +75,7 @@ The configuration file `config.toml` found in `/config` directory is central to 
 - `show_debug_messages`: Set to `true` to enable verbose logging for debugging purposes.
 
 ### `[redis_traffic]`
+
 - `redis_traffic_host`: Hostname or IP address of the Redis server used for real-time data.
 - `redis_traffic_port`: Port number for the Redis server handling real-time data.
 - `redis_traffic_db_index`: Database index for the Redis server used for real-time data.
@@ -81,16 +87,19 @@ The configuration file `config.toml` found in `/config` directory is central to 
   - `ssl_keyfile`: Path to the SSL key.
 
 ### `[redis_results]`
+
 - `host`: Hostname or IP address of the Redis server used for storing AI analysis results.
 - `port`: Port number for the Redis server handling AI results.
 - `db_index`: Database index for the Redis server used for AI results.
 - Similar SSL settings as `[redis_traffic]` (commented out by default).
 
 ### `[security]`
+
 - `enable_encryption`: Enable encryption for sensitive data within the application (set to `true` to enable).
 - `encryption_key_path`: Path to the encryption key file.
 
 ### `[performance]`
+
 - `memory_optimization`: Enable to optimize memory usage (set to `true` to enable).
 - `cpu_priority`: Set the CPU priority level (e.g., `"high"`, `"normal"`).
 
