@@ -28,7 +28,7 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
    - Modify the values in `values.yaml` as necessary, particularly the network interfaces and Redis settings.
    - Run `helm install scytheex ./scytheex-chart` to deploy to your Kubernetes cluster.
 
-![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/577c469f-04e3-4bbb-8829-083ed1bc0659)
+![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/e8cc8fba-903a-4f18-886b-4dab1ab8eeb7)
 
 ### Windows Host Setup
 
@@ -40,7 +40,7 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
    - Modify `config.toml` to suit your network configuration.
    - Run `setup_windows.bat` to configure and start ScytheEx as a service using NSSM.
 
-![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/5bfbabca-6646-4f4e-be68-632ae77ff7d4)
+![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/be54e415-58f3-4549-b51e-65fab1480fb4)
 
 ### Debian-Based Linux Host Setup
 
