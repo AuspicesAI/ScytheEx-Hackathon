@@ -16,7 +16,7 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
 
 ## Setup Instructions
 
-![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/11bdfe89-175d-4e1c-87df-2ec29fe5a32e)
+![Kubernetes](https://github.com/AuspicesAI/ScytheEx/assets/75253629/11bdfe89-175d-4e1c-87df-2ec29fe5a32e)
 
 ### Kubernetes Deployment using Helm
 
@@ -30,7 +30,7 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
    - Modify the values in `values.yaml` as necessary, particularly the network interfaces and Redis settings.
    - Run `helm install scytheex ./scytheex-chart` to deploy to your Kubernetes cluster.
 
-![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/e8cc8fba-903a-4f18-886b-4dab1ab8eeb7)
+![Windows](https://github.com/AuspicesAI/ScytheEx/assets/75253629/e8cc8fba-903a-4f18-886b-4dab1ab8eeb7)
 
 ### Windows Host Setup
 
@@ -40,16 +40,20 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
    - Install Python and required dependencies from `requirements.txt`.
 
 2. **Configure and Run**:
-   - Run `setup_windows.bat` to configure and start ScytheEx as a service using NSSM.
+   - Manually adjust the network interface settings in `config.toml` according to your system.
+   - Execute `setup_windows.bat` to configure and start ScytheEx using NSSM (the Non-Sucking Service Manager). This setup requires manual execution due to the need for specific configurations per system.
 
-![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/cddd869a-1080-45d9-8668-dc05b0d41ea6)
+![Debian](https://github.com/AuspicesAI/ScytheEx/assets/75253629/cddd869a-1080-45d9-8668-dc05b0d41ea6)
 
 ### Debian-Based Linux Host Setup
 
 1. **Installation**:
 
-   - Clone the ScytheEx repository.
-   - Run `setup_linux.sh`, which will install Python dependencies, set up the environment, and configure the systemd service.
+   - Use the following command to install ScytheEx directly:
+     ```bash
+     curl -sSL https://raw.githubusercontent.com/AuspicesAI/ScytheEx/main/setup/debian_linux.sh | sudo bash
+     ```
+   - This script will clone the ScytheEx repository, install Python dependencies, set up the environment, and configure ScytheEx as a systemd service.
 
 2. **Service Management**:
    - Use `systemctl start scytheex` to start the service.

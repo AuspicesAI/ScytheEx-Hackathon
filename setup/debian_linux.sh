@@ -9,7 +9,7 @@ sudo apt-get update && sudo apt-get upgrade -y
 # Install Python and necessary system utilities
 sudo apt-get install -y python3 python3-pip python3-venv git
 
-# Clone your repository (replace URL with your repository URL)
+# Clone the ScytheEx repository
 git clone https://github.com/AuspicesAI/ScytheEx.git /opt/ScytheEx
 cd /opt/ScytheEx
 
