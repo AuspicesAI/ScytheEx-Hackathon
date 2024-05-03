@@ -6,6 +6,9 @@ ScytheEx is an advanced cybersecurity tool designed for real-time network traffi
 
 ScytheEx integrates AI-driven analytics to detect activities post-attack, adhering to the philosophy that despite advanced protective measures like EDR or AV, malware may still execute on the system. The tool operates at this post-execution level to identify malicious activities and generate YARA rules, providing continuous feeds to enhance other detection tools and technologies.
 
+> [!Warning]
+> ScytheEx project is still in an early stage which means that any feature changes are very welcome.
+
 ### Main Features
 
 - AI-powered network traffic analysis.
@@ -19,6 +22,9 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
 ![Kubernetes](https://github.com/AuspicesAI/ScytheEx/assets/75253629/11bdfe89-175d-4e1c-87df-2ec29fe5a32e)
 
 ### Kubernetes Deployment using Helm
+
+> [!Important]
+> ScytheEx On Kubernetes is not fully tested, kubernetes admins can customize the deployment as needed but by default it runs as a daemonset.
 
 1. **Prepare Your Environment**:
 
