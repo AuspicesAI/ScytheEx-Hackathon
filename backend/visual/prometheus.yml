@@ -1,0 +1,7 @@
+scrape_configs:
+  - job_name: "redis"
+    scrape_interval: 15s # Interval at which to scrape targets
+    scrape_timeout: 10s # Timeout must be less than the interval
+    static_configs:
+      - targets:
+          ["172.19.124.205:9121", "172.19.124.205:9122", "172.19.124.205:9123"]

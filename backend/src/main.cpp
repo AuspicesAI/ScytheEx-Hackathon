@@ -47,12 +47,13 @@ int main() {
 
     SnifferConfiguration config;
 
-    config.set_promisc_mode(true);
+    config.set_promisc_mode(false);
     config.set_snap_len(64 * 1024);  // 64 KB maximum packet size
-    config.set_filter("ip src 172.19.124.205 or ip dst 172.19.124.205");
+    config.set_filter("host 172.19.124.205 and port 40056");
+
     Sniffer sniffer("eth0", config);
 
-    FILE* pipe = popen("python3 process_data.py", "w");
+    FILE* pipe = popen("python3 /home/smadi0x86wsl/dev/zinc/ScytheEx/backend/build/process_data.py", "w");
     if (!pipe) {
         std::cerr << "Failed to open pipe to Python script\n";
         return 1;

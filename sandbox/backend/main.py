@@ -30,7 +30,7 @@ def main():
         print("\r[x] stopping (Ctrl-C pressed)")
         log_event(traffic_logger, "System stopped by user")
     except Exception as e:
-        log_error(error_logger, f"Error in system startup: {e}")
+        # log_error(error_logger, f"Error in system startup: {e}")
         print(f"Error in system setup: {e}")
         sys.exit(1)
 

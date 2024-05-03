@@ -1,41 +1,40 @@
 #include "service.h"
 #include <tins/tcp.h>
 #include <tins/udp.h>
+#include <unordered_map>
 #include <sstream>
 
+// Helper function to initialize service maps
+std::unordered_map<uint16_t, std::string> initializeServiceMap() {
+    std::unordered_map<uint16_t, std::string> serviceMap{
+        {80, "HTTP"}, {443, "HTTPS"}, {22, "SSH"}, {21, "FTP"}, {23, "Telnet"},
+        {25, "SMTP"}, {110, "POP3"}, {143, "IMAP"}, {3306, "MySQL"}, {3389, "RDP"},
+        {587, "SMTPS"}, {53, "DNS"}, {161, "SNMP"}, {123, "NTP"}, {500, "IKE"}, {40056, "Havoc C2"}
+    };
+    return serviceMap;
+}
+
+// Global service map for quick lookups
+static const std::unordered_map<uint16_t, std::string> serviceMap = initializeServiceMap();
+
 std::string identifyService(const Tins::Packet& pkt) {
-    std::stringstream serviceInfo;  // Use stringstream to format string with port number
+    std::stringstream serviceInfo;
 
     if (auto tcp = pkt.pdu()->find_pdu<Tins::TCP>()) {
-        switch (tcp->dport()) {
-            case 80: return "HTTP";
-            case 443: return "HTTPS";
-            case 22: return "SSH";
-            case 21: return "FTP";
-            case 23: return "Telnet";
-            case 25: return "SMTP";
-            case 110: return "POP3";
-            case 143: return "IMAP";
-            case 3306: return "MySQL";
-            case 3389: return "RDP";
-            case 587: return "SMTPS";
-            // Add more cases as needed
-            default:
-                serviceInfo << "Unknown Service on TCP Port " << tcp->dport();
-                return serviceInfo.str();
+        auto it = serviceMap.find(tcp->dport());
+        if (it != serviceMap.end()) {
+            return it->second;
         }
+        serviceInfo << "Unknown Service on TCP Port " << tcp->dport();
+        return serviceInfo.str();
     } else if (auto udp = pkt.pdu()->find_pdu<Tins::UDP>()) {
-        switch (udp->dport()) {
-            case 53: return "DNS";
-            case 161: return "SNMP";
-            case 123: return "NTP";
-            case 500: return "IKE";
-            case 1812: return "RADIUS";
-            // Add more cases as needed
-            default:
-                serviceInfo << "Unknown Service on UDP Port " << udp->dport();
-                return serviceInfo.str();
+        auto it = serviceMap.find(udp->dport());
+        if (it != serviceMap.end()) {
+            return it->second;
         }
+        serviceInfo << "Unknown Service on UDP Port " << udp->dport();
+        return serviceInfo.str();
     }
+
     return "Unknown Service";
 }

@@ -2,9 +2,9 @@
 network_interface = "eth0"
 # use_threat_intel = true
 # threat_intel_sources = ["http://example.com/threat1.txt", "http://example.com/threat2.txt"]
-log_directory = "/var/log/scytheex"
-traffic_logs_path = "/var/log/scytheex/traffic.log"
-error_logs_path = "/var/log/scytheex/errors.log"
+log_directory = "./scytheex"
+traffic_logs_path = "./scytheex/traffic.log"
+error_logs_path = "./scytheex/error.log"
 # visualization_server = "https://localhost:8080"
 number_of_processes = 4
 # remote_logging_enabled = true
@@ -14,8 +14,8 @@ show_debug_messages = false
 # blacklist_generation_rules = ["rule1", "rule2"]
 
 [redis_traffic]
-redis_traffic_host = "localhost"
-redis_traffic_port = 6379
+redis_traffic_host = "0.tcp.eu.ngrok.io"
+redis_traffic_port = 16944
 redis_traffic_db_index = 0
 # ssl = true
 # ssl_cert_reqs = "required"

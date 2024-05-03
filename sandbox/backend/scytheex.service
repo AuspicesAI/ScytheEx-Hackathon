@@ -1,0 +1,11 @@
+[Unit]
+Description=ScytheEx Network Traffic Analysis Tool
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /path/to/main.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

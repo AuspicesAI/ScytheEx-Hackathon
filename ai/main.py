@@ -36,7 +36,7 @@ with open("models/Neris_XGBoost_model.pkl", "rb") as model_file:
 
 
 # Setup Redis connection
-r = redis.Redis(host="0.tcp.eu.ngrok.io", port=15311, db=0)
+r = redis.Redis(host="2.tcp.eu.ngrok.io", port=16468, db=0)
 
 # Subscribe to the channelcd ai
 pubsub = r.pubsub()
