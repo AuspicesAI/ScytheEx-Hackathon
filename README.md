@@ -118,7 +118,7 @@ Detailed steps from initial data capture through to AI analysis and front-end in
 
 - **Mitigation Strategies**: Automated system responses based on threat severity.
 - **Threat Intelligence**: Integration with real-time threat intelligence feeds to enhance detection capabilities.
-- **Kubernetes Response**: Future feature to cordon off infected Kubernetes nodes, preventing the spread of malware and automatically redistributing workloads.
+- **Kubernetes Response**: Future feature to cordon off and drain infected Kubernetes nodes, preventing the spread of malware and automatically redistributing workloads.
 
 ## License
 
