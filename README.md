@@ -15,6 +15,8 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
 
 ## Setup Instructions
 
+![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/11bdfe89-175d-4e1c-87df-2ec29fe5a32e)
+
 ### Kubernetes Deployment using Helm
 
 1. **Prepare Your Environment**:
