@@ -40,7 +40,7 @@ with open("models/Neris_LogReg_model.pkl", "rb") as model_file:
 
 
 # Setup Redis connection
-r = redis.Redis(host="7.tcp.eu.ngrok.io", port=13716, db=0)
+r = redis.Redis(host="5.tcp.eu.ngrok.io", port=16168, db=0)
 
 # Subscribe to the channelcd ai
 pubsub = r.pubsub()
@@ -85,7 +85,10 @@ def prepare_df(raw_data):
             return 0
 
     raw_data["Flags"] = raw_data["Flags"][-1]
-    df = pd.DataFrame(raw_data)
+    index_values = range(len(raw_data))
+
+    # Create the DataFrame with both data and index
+    df = pd.DataFrame(raw_data, index=index_values)
 
     df["Destination Port"] = df["Destination Port"].apply(clean_port)
     df["Destination Port"] = df["Destination Port"].astype(int)
@@ -182,12 +185,7 @@ def predict(input_data):
 
 
 def main():
-    results = {
-        "Prediction": []
-    }  # Initialize results as a dictionary with an empty list
-    i = 0
     for message in pubsub.listen():
-        i += 1
         if message["type"] == "message":
             data = json.loads(message["data"])
             print(f'{data["Destination IP"]}: {data["Source IP"]}')
@@ -197,7 +195,7 @@ def main():
             print(input_data)
             prediction = predict(input_data)
             input_data["id"] = data["id"]
-            # upload_to_redis(input_data["id"].copy(), prediction)
+            upload_to_redis(data.copy(), prediction)
             print(f'{input_data["id"].copy()}: {prediction}')
 
 
@@ -238,7 +236,7 @@ def main():
 #         "Bytes": 410,
 #         "Flows": 10,
 #     }
-#     df = prepare_df(data)
+#     df = prepare_df(pd.DataFrame(data,index=[0]))
 #     input_data = prepare_input(pd.DataFrame(df.iloc[[0]]))
 #     print("\n\n########## New Prediction ##########")
 #     print(input_data)
