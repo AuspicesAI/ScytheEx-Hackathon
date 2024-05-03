@@ -40,7 +40,7 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
    - Modify `config.toml` to suit your network configuration.
    - Run `setup_windows.bat` to configure and start ScytheEx as a service using NSSM.
 
-![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/a00a5457-942f-47c5-8ec7-2848b1bccdf7)
+![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/622cd155-00a6-498a-b632-23dca0a7d191)
 
 ### Debian-Based Linux Host Setup
 
