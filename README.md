@@ -24,7 +24,7 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
 ### Kubernetes Deployment using Helm
 
 > [!Important]
-> ScytheEx On Kubernetes is not fully tested, kubernetes admins can customize the deployment as needed but by default it runs as a daemonset.
+> by default **ScytheEx** runs as a daemonset on kubernetes and is not fully tested which may break, kubernetes admins can customize the deployment as needed.
 
 1. **Prepare Your Environment**:
 
