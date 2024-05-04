@@ -1,3 +1,0 @@
-flask
-prometheus_client
-redis

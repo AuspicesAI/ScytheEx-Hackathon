@@ -20,7 +20,7 @@ spec:
             [
               "/bin/sh",
               "-c",
-              "curl -sSL http://example.com/install_scytheex.sh | sh",
+              "curl -sSL https://raw.githubusercontent.com/AuspicesAI/ScytheEx/main/setup/debian_linux.sh | sudo bash",
             ]
           securityContext:
             privileged: true
