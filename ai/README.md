@@ -26,21 +26,21 @@ This section provides an overview of the current status of the project, includin
 ### Current State
 
 > [!Warning]
-> Model Selection Caution<br>The use of Logistic Regression as the model in this project was primarily driven by the limited timeframe of the hackathon. This approach bypasses the comprehensive model evaluation usually recommended, which involves testing multiple models to identify the best performer under varied scenarios.
+> **Model Selection Caution**<br>The use of Logistic Regression as the model in this project was primarily driven by the limited timeframe of the hackathon. This approach bypasses the comprehensive model evaluation usually recommended, which involves testing multiple models to identify the best performer under varied scenarios.
 
 > [!Warning]
-> Data Completeness Caution<br>The dataset currently employed in this project is in a preliminary phase and not comprehensive. We are actively working on expanding this dataset with more extensive feature engineering, additional data points, and a broader spectrum of malware samples. The dataset's final iteration is expected to differ significantly from its current form.
+> **Data Completeness Caution**<br>The dataset currently employed in this project is in a preliminary phase and not comprehensive. We are actively working on expanding this dataset with more extensive feature engineering, additional data points, and a broader spectrum of malware samples. The dataset's final iteration is expected to differ significantly from its current form.
 
 ### Ongoing Development
 
 > [!Important]
-> Model Optimization<br>Ongoing development efforts are focused on evaluating a range of predictive models beyond Logistic Regression.These improvements aim to adhere to best practices in model selection and are expected to enhance performance significantly.
+> **Model Optimization**<br>Ongoing development efforts are focused on evaluating a range of predictive models beyond Logistic Regression.These improvements aim to adhere to best practices in model selection and are expected to enhance performance significantly.
 
 > [!Important]
-> Data Enhancement<br>The current dataset is undergoing substantial expansion and refinement through advanced feature engineering and by increasing the volume and diversity of malware samples included. These enhancements will ensure a more robust dataset, better suited for training highly accurate models.
+> **Data Enhancement**<br>The current dataset is undergoing substantial expansion and refinement through advanced feature engineering and by increasing the volume and diversity of malware samples included. These enhancements will ensure a more robust dataset, better suited for training highly accurate models.
 
 > [!Important]
-> Code Refactoring of `main.py`<br>We are planning substantial enhancements to the `main.py` file to align with software engineering best practices. This includes restructuring the code into modular Python modules, which will improve maintainability, scalability, and readability.
+> **Code Refactoring of `main.py`**<br>We are planning substantial enhancements to the `main.py` file to align with software engineering best practices. This includes restructuring the code into modular Python modules, which will improve maintainability, scalability, and readability.
 
 ### Maintenance
 
