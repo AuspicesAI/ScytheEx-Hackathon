@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import {
   Table,
@@ -9,9 +9,10 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
+import { useRedisSubscriber } from "./RedisSubscriber";
 
 // Sample data for the table
-const rows = [
+const initialRows = [
   {
     id: 1,
     duration: "30s",
@@ -23,28 +24,7 @@ const rows = [
     flags: "SYN, ACK",
     status: "Normal",
   },
-  {
-    id: 2,
-    duration: "45s",
-    protocol: "HTTPS",
-    sourceIP: "192.168.1.3",
-    sourcePort: 443,
-    destinationIP: "192.168.1.4",
-    destinationPort: 443,
-    flags: "FIN",
-    status: "Background",
-  },
-  {
-    id: 3,
-    duration: "10s",
-    protocol: "FTP",
-    sourceIP: "192.168.1.5",
-    sourcePort: 21,
-    destinationIP: "192.168.1.6",
-    destinationPort: 21,
-    flags: "SYN",
-    status: "Error",
-  },
+  // Add more initial rows here...
 ];
 
 // Function to return a styled span based on status
@@ -54,7 +34,7 @@ const StatusSpan = ({ status }) => {
     padding: "0.25em 0.7em",
     borderRadius: "12px",
     backgroundColor:
-      status === "Normal"
+      status === "LEGITIMATE"
         ? "#006400" // Darker green
         : status === "Background"
         ? "#003366" // Darker blue
@@ -64,23 +44,31 @@ const StatusSpan = ({ status }) => {
   return <span style={style}>{status}</span>;
 };
 
-const CustomTable = () => {
+const CustomTable = ({ rows }) => {
   const tableCellStyles = {
     color: "#e2e2e2de",
     borderBottom: "1px solid #242424",
     padding: "8px 24px",
     height: "36px",
   };
-  const headerCellStyles = { ...tableCellStyles, backgroundColor: "#0c0c0c" };
 
   return (
     <TableContainer
       component={Paper}
       style={{ backgroundColor: "#0c0c0c", color: "white" }}
     >
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+      <Table aria-label="simple table">
         <TableHead>
-          <TableRow style={{ borderBottom: "1px solid #242424" }}>
+          <TableRow>
+            <TableCell
+              colSpan={9}
+              align="center"
+              style={{ backgroundColor: "#0c0c0c", color: "#e2e2e2de" }}
+            >
+              Network Traffic Data
+            </TableCell>
+          </TableRow>
+          <TableRow>
             {[
               "ID",
               "Duration",
@@ -91,7 +79,61 @@ const CustomTable = () => {
               "Destination Port",
               "Flags",
               "Status",
-            ].map((text) => (
+            ].map((header) => (
+              <TableCell key={header} style={tableCellStyles}>
+                {header}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {rows.map((row, index) => (
+            <TableRow key={index}>
+              {Object.entries(row).map(([key, value]) => (
+                <TableCell key={key} style={tableCellStyles}>
+                  {key === "status" ? (
+                    <StatusSpan status={value} />
+                  ) : (
+                    value.toString()
+                  )}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
+
+const MiniTable = ({ rows, title }) => {
+  const tableCellStyles = {
+    color: "#e2e2e2de",
+    borderBottom: "1px solid #242424",
+    padding: "8px 24px",
+    height: "36px",
+    width: "130px",
+  };
+  const headerCellStyles = { ...tableCellStyles, backgroundColor: "#0c0c0c" };
+
+  return (
+    <TableContainer
+      component={Paper}
+      style={{ backgroundColor: "#0c0c0c", color: "white" }}
+    >
+      <Table aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell
+              colSpan={4}
+              align="center"
+              style={{ color: "white", backgroundColor: "#EF476F" }}
+            >
+              {title}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            {["ID", "Source IP", "Destination IP", "Status"].map((text) => (
               <TableCell
                 key={text}
                 align={text === "ID" ? "inherit" : "right"}
@@ -103,23 +145,14 @@ const CustomTable = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
-            <TableRow
-              key={row.id}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              style={{ borderBottom: "1px solid #242424" }}
-            >
-              {Object.entries(row).map(([key, value]) => (
-                <TableCell
-                  key={key}
-                  component={key === "id" ? "th" : undefined}
-                  scope={key === "id" ? "row" : undefined}
-                  align={key === "id" ? "inherit" : "right"}
-                  style={tableCellStyles}
-                >
-                  {key === "status" ? <StatusSpan status={value} /> : value}
-                </TableCell>
-              ))}
+          {rows.map((row, index) => (
+            <TableRow key={index} style={{ borderBottom: "1px solid #242424" }}>
+              <TableCell style={tableCellStyles}>{row.id}</TableCell>
+              <TableCell style={tableCellStyles}>{row.sourceIP}</TableCell>
+              <TableCell style={tableCellStyles}>{row.destinationIP}</TableCell>
+              <TableCell style={tableCellStyles}>
+                {row.status ? <StatusSpan status={row.status} /> : "N/A"}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -129,12 +162,48 @@ const CustomTable = () => {
 };
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [rows, setRows] = useState(initialRows);
+
+  const redisRows = useRedisSubscriber();
+
+  useEffect(() => {
+    // Format and merge the new rows with the existing ones
+    const formattedRows = redisRows.map((row, index) => ({
+      id: index + 1,
+      duration: row.duration || "N/A",
+      protocol: row.protocol || "N/A",
+      sourceIP: row.sourceIP || "N/A",
+      sourcePort: row.sourcePort || "N/A",
+      destinationIP: row.destinationIP || "N/A",
+      destinationPort: row.destinationPort || "N/A",
+      flags: row.flags || "N/A",
+      status: row.status || "N/A",
+    }));
+
+    // Merge formatted rows with existing rows and ensure the maximum length is 8
+    const newRows = [...rows, ...formattedRows].slice(-8);
+
+    setRows(newRows);
+  }, [redisRows]);
 
   return (
-    <section className="flex items-center justify-center h-screen text-white">
-      <div className="w-full">
-        <CustomTable />
+    <section className="flex flex-col items-center h-screen text-white">
+      <div className="py-6 max-w-[1280px]">
+        <CustomTable rows={rows} />
+      </div>
+      <div className="flex flex-row justify-between gap-4 max-w-[1280px]">
+        <MiniTable
+          rows={rows.filter(
+            (row) => row.status !== "Background" && row.status !== "LEGITIMATE"
+          )}
+          title="Latest Malicious Traffic"
+        />
+        <MiniTable
+          rows={rows.filter(
+            (row) => row.status === "Background" || row.status === "LEGITIMATE"
+          )}
+          title="Latest Benign Traffic"
+        />
       </div>
     </section>
   );
