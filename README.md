@@ -23,9 +23,9 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
 - Support for Kubernetes deployments.
 - 3rd Party APIs usage (e.g: Virus Total, Hybrid-Analysis)
 
-## Workflow
+### Workflow
 
-![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/6edbdb92-ce46-4d8e-885f-5bfba04139da)
+![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/1d448ae9-8872-4b2e-bf1b-b5cf30c0492d)
 
 ## Setup Instructions
 
