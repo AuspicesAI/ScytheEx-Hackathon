@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Starting setup for TestGenAI..."
+echo "Starting setup for ScytheEx-ai..."
 echo "--------------------------------"
 sleep 2
 
@@ -23,7 +23,7 @@ then
     sleep 2
 fi
 
-# Navigate to the TestGenAI directory
+# Navigate to the ScytheEx-ai directory
 cd "$(dirname "$0")"
 
 # Delete current poetry.lock file if it exists
@@ -50,18 +50,18 @@ echo "--------------------------------"
 sleep 2
 
 # Create an IPython kernel for the project
-echo "Creating an IPython kernel for Zenith..."
-poetry run python -m ipykernel install --user --name=ZenithKernel --display-name "Python (Zenith)"
-echo "IPython kernel for Zenith created."
+echo "Creating an IPython kernel for ScytheEx-ai..."
+poetry run python -m ipykernel install --user --name=ScytheEx-ai --display-name "Python (ScytheEx-ai)"
+echo "IPython kernel for ScytheEx-ai created."
 echo "--------------------------------"
 sleep 2
 
-# Check if the ZenithKernel has been created
-echo "Verifying the creation of the ZenithKernel..."
-if poetry run jupyter kernelspec list | grep -iq 'zenithkernel'; then
-    echo "ZenithKernel has been successfully created."
+# Check if the ScytheEx-ai has been created
+echo "Verifying the creation of the ScytheEx-ai..."
+if poetry run jupyter kernelspec list | grep -iq 'ScytheEx-ai'; then
+    echo "ScytheEx-ai has been successfully created."
 else
-    echo "Error: ZenithKernel was not created successfully. Please check the installation logs for errors."
+    echo "Error: ScytheEx-ai was not created successfully. Please check the installation logs for errors."
 fi
 echo "--------------------------------"
 sleep 2
@@ -97,33 +97,6 @@ if [ ! -f ".env.vault" ]; then
     # Attempt to connect to dotenv-vault
     npx dotenv-vault@latest new vlt_79a4218fb64985c6e5cdbcae5ee0cf074f4f5827a7911d2dea595e7b92ffbe9b
 fi
-
-echo "Pulling the latest .env file..."
-npx dotenv-vault@latest pull
-echo ".env file updated."
-echo "--------------------------------"
-sleep 2
-
-# Install Mistral Python Client
-echo "Installing Mistral Python Client..."
-poetry add mistralai
-echo "Mistral Python Client installed."
-echo "--------------------------------"
-sleep 2
-
-# Check if MISTRAL_API_KEY is set in .env
-echo "Checking for MISTRAL_API_KEY in the .env file..."
-if grep -q "MISTRAL_API_KEY" ".env"; then
-    MISTRAL_API_KEY=$(grep "MISTRAL_API_KEY" ".env" | cut -d '=' -f2)
-    echo "Exporting MISTRAL_API_KEY from .env file..."
-    export MISTRAL_API_KEY
-    echo "MISTRAL_API_KEY exported."
-else
-    echo "Error: MISTRAL_API_KEY not found in .env file. Please ensure it's correctly set."
-    exit 1
-fi
-echo "--------------------------------"
-sleep 2
 
 # Final message with instructions to enter Poetry shell manually
 echo "Primary setup complete."
