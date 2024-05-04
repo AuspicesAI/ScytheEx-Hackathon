@@ -37,7 +37,7 @@ Our development workflow is designed to ensure that each contribution is conside
 
 ## Code of Conduct
 
-By participating in this project, you agree to abide by its [Code of Conduct](LINK_TO_CODE_OF_CONDUCT). We expect all contributors to foster an open and welcoming environment.
+By participating in this project, you agree to abide by its [Code of Conduct](https://github.com/AuspicesAI/ScytheEx/blob/main/CODEOFCONDUCT.md). We expect all contributors to foster an open and welcoming environment.
 
 ## Recognition
 
