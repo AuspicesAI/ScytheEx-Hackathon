@@ -1,5 +1,7 @@
 ![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/edfcdbb7-cdec-49b6-aacb-314bcc9faeda)
 
+![image](https://github.com/AuspicesAI/ScytheEx/assets/75253629/226966e1-0d2e-400c-a94b-e6cdac9e4e3e)
+
 ## Overview
 
 ScytheEx is an advanced cybersecurity tool designed for real-time network traffic monitoring and threat analysis. Initially developed as a Linux service daemon and capable of deployment on Kubernetes bare metal, this versatile solution extends its functionality across various operating systems.
