@@ -1,4 +1,5 @@
 [ScytheEx]
+# The network interface to use for network traffic, change this to the appropriate interface
 network_interface = "eth0"
 # use_threat_intel = true
 # threat_intel_sources = ["http://example.com/threat1.txt", "http://example.com/threat2.txt"]
