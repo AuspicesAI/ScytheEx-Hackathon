@@ -44,10 +44,10 @@ def connect_to_redis(host, port, db_index):
 
 def start_capture(config, traffic_logger, error_logger):
     try:
-        redis_client = connect_to_redis("7.tcp.eu.ngrok.io", 13716, 0)
+        redis_client = connect_to_redis("3.84.243.99", 6379, 0)
         sniff(
             iface=config["network_interface"],
-            filter="tcp port 80",
+            # filter="tcp port 80",
             prn=lambda x: handle_packet(x, traffic_logger, error_logger, redis_client),
             store=False,
         )

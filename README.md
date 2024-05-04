@@ -135,12 +135,54 @@ The configuration file `config.toml` found in `/config` directory is central to 
 
 Detailed steps from initial data capture through to AI analysis and front-end interaction:
 
-1. **Data Capture**: Captures real-time network traffic and parses data using custom packet analysis techniques.
-2. **Redis Integration**: Utilizes dual Redis setups for handling real-time data flow and AI analysis results efficiently.
-3. **AI Analysis**: Periodically processes data to identify potential threats using advanced machine learning algorithms.
-4. **Threat Response**: Implements automated responses based on analysis, such as updating firewall rules or isolating affected network segments.
-5. **Front-end Monitoring**: Provides a real-time dashboard for monitoring network status and alerts.
-6. **Continuous Updates**: Regularly updates AI models and system configurations to adapt to new threats and improve accuracy.
+1. **Data Capture**:
+
+   - ScytheEx captures network traffic on the specified interface.
+   - Traffic data is stored in Redis for real-time analysis.
+
+2. **AI Analysis**:
+
+   - The AI engine processes the traffic data to identify potential threats.
+   - Identified threats are stored in Redis for further processing.
+
+3. **Threat Detection**:
+
+   - ScytheEx uses the AI-generated threat data to detect malicious activities.
+   - Detected threats are logged and can trigger mitigation strategies.
+
+4. **Front-End Interaction**:
+
+   - The visualization server provides a front-end interface for monitoring and interacting with the system.
+   - Users can view real-time traffic data, threat alerts, and system status.
+
+5. **Mitigation Strategies**:
+
+   - ScytheEx can automatically respond to threats based on severity.
+   - Mitigation strategies include IP blacklisting and other automated responses.
+
+6. **Threat Intelligence**:
+
+   - ScytheEx can integrate with real-time threat intelligence feeds to enhance detection capabilities.
+   - Threat intelligence data is used to identify and respond to emerging threats.
+
+7. **Customization**:
+
+   - Users can customize the configuration file to adjust system behavior.
+   - Custom settings include network interfaces, logging paths, and performance optimizations.
+
+8. **Deployment**:
+
+   - ScytheEx can be deployed on Kubernetes clusters or standalone Linux and Windows systems.
+   - Deployment options include Helm charts for Kubernetes and setup scripts for Linux and Windows.
+
+9. **Monitoring**:
+
+   - ScytheEx continuously monitors network traffic and system status.
+   - Real-time alerts and logs provide visibility into potential threats and system performance.
+
+10. **Scalability**:
+    - ScytheEx is designed to scale across multiple nodes and handle high volumes of traffic.
+    - The system can be customized to meet the needs of large-scale deployments.
 
 ## Future Enhancements
 
