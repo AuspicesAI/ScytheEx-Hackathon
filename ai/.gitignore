@@ -4,5 +4,3 @@ models/
 !.env.project
 !.env.vault
 mlruns/
-models/
-data/
