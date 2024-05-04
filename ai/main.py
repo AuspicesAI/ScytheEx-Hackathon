@@ -8,21 +8,31 @@ import time
 from sklearn.preprocessing import StandardScaler
 
 
-# Load the data
-# Since your data appears to be tab-separated, we use sep='\s+' which handles multiple spaces
+"""
+The following script performs the following operations:
+1. Loads two CSV files for model input and feature scaling.
+2. Removes unnecessary columns from the scaling dataset.
+3. Loads a pre-trained logistic regression model from a pickle file.
+4. Initializes a StandardScaler to normalize feature data.
+5. Creates LabelEncoder objects to encode and decode categorical variables for 'Protocol', 'Flags', and 'Label' columns.
+"""
+# Load datasets for model input and feature scaling
 df = pd.read_csv("data/LogRegNeris.csv")
-dfs = pd.read_csv("data/EncoderNeris.csv")
+dfs = pd.read_csv("data/ScalerNeris.csv")
 dfs.drop(["Label", "Unnamed: 0"], axis=1, inplace=True)
 
+# Load the pre-trained logistic regression model
 with open("models/Neris_LogReg_model.pkl", "rb") as model_file:
     model = pickle.load(model_file)
 
+# Initialize scaler and encoders for data transformation
 scaler = StandardScaler()
 scaler.fit(dfs)
 protocol_encoder = LabelEncoder()
 flags_encoder = LabelEncoder()
 label_encoder = LabelEncoder()
 
+# Fit and transform the categorical features using encoders
 protocol_encoder.fit_transform(df["Protocol"])
 flags_encoder.fit_transform(df["Flags"])
 label_encoder.fit_transform(df["Label"])
@@ -30,27 +40,41 @@ protocol_decoder = protocol_encoder.inverse_transform
 flags_decoder = flags_encoder.inverse_transform
 label_decoder = label_encoder.inverse_transform
 
+"""
+This script connects to a Redis server and subscribes to a specific channel to receive packet data:
+1. Establishes a connection to a Redis server using specified host, port, and database index.
+2. Subscribes to the 'packet_data' channel to listen for incoming messages.
+3. Prints a confirmation message indicating successful subscription and readiness to receive data.
+"""
 
-with open("models/Neris_LogReg_model.pkl", "rb") as model_file:
-    model = pickle.load(model_file)
-
-
-# Setup Redis connection
+# Establish connection to Redis server
 r = redis.Redis(host="3.84.243.99", port=6379, db=0)
 
-# Subscribe to the channelcd ai
+# Subscribe to the 'packet_data' channel
 pubsub = r.pubsub()
 pubsub.subscribe("packet_data")
 
+# Notify user of subscription status
 print("Subscribed to 'packet_data'. Waiting for data...")
 
 
 def upload_to_redis(df, status):
+    """
+    This function uploads a modified DataFrame to a Redis channel as a JSON string:
+    1. Adds a new column 'Status' to the DataFrame based on the provided status.
+    2. Filters the DataFrame to specific columns relevant for further processing.
+    3. Converts the filtered DataFrame to a JSON format.
+    4. Establishes a connection to the Redis server.
+    5. Publishes the JSON string to a predefined Redis channel.
+    6. Handles connection errors and prints relevant messages.
+    """
+
+    # Redis server configuration
     redis_host = "3.84.243.99"
     redis_port = 6380
     redis_db = 0
 
-    # Add the array as a new column to the DataFrame
+    # Add the 'Status' column to the DataFrame
     df["Status"] = status
     df = df[
         [
@@ -66,37 +90,45 @@ def upload_to_redis(df, status):
         ]
     ]
 
-    # df["Status"] = "Neris.exe" if df["Status"] == "Botnet" else df["Status"]
     # Convert DataFrame to JSON for publishing
     df_json = df.to_json(orient="records")
 
     # Create a Redis connection
     r = redis.Redis(host=redis_host, port=redis_port, db=redis_db)
 
-    # Define the channel
+    # Define the Redis channel
     channel = "prediction_channel"
 
     try:
-        # Publish DataFrame to the Redis channel
+        # Publish DataFrame to Redis channel
         r.publish(channel, df_json)
         print(f"Published updated DataFrame to Redis on channel '{channel}'.")
     except redis.exceptions.ConnectionError as e:
-        print(f"{e}")
+        print(f"Failed to connect to Redis: {e}")
 
 
 def prepare_df(raw_data):
+    """
+    Processes the raw data into a structured DataFrame:
+    1. Cleans port numbers by attempting to convert them to integers; returns 0 for invalid conversions.
+    2. Standardizes the 'Flags' column to use the first entry for all rows.
+    3. Applies transformations to ports, durations, and calculates new columns:
+       - Converts duration of 0.000 to 0.001 to avoid division errors.
+       - Calculates 'Bytes per Packet', 'Packets per Second', and 'Bytes per Second'.
+       - Identifies whether traffic is encrypted and whether common ports are used.
+    4. Cleans and structures the DataFrame by selecting specific columns and setting appropriate data types.
+    5. Drops unnecessary IP address columns and reformats the 'Duration' column to three decimal places.
+    Returns the structured DataFrame ready for further analysis.
+    """
+
     def clean_port(port):
         try:
-            # Attempt to convert port to integer
             return int(port)
         except ValueError:
-            # If conversion fails, return 0
             return 0
 
     raw_data["Flags"] = raw_data["Flags"][0]
     index_values = range(len(raw_data))
-
-    # Create the DataFrame with both data and index
     df = pd.DataFrame(raw_data, index=index_values)
 
     df["Destination Port"] = df["Destination Port"].apply(clean_port)
@@ -108,7 +140,6 @@ def prepare_df(raw_data):
     df["Bytes per Packet"] = df.apply(
         lambda row: row["Bytes"] / row["Packets"] if row["Packets"] > 0 else 0, axis=1
     )
-    # Calculate 'Packets per Second' and 'Bytes per Second' if duration is not zero
     df["Packets per Second"] = df.apply(
         lambda row: row["Packets"] / row["Duration"] if row["Duration"] > 0 else 0,
         axis=1,
@@ -131,11 +162,7 @@ def prepare_df(raw_data):
     df.drop(["Destination IP", "Source IP"], axis=1, inplace=True)
     df = df.astype(
         {
-            "Duration": "float64",
-            "Packets": "float64",
             "Bytes": "float64",
-            "Flows": "float64",
-            "Source Port": "int64",
             "Destination Port": "int64",
             "Bytes per Packet": "float64",
             "Packets per Second": "float64",
@@ -145,13 +172,9 @@ def prepare_df(raw_data):
         }
     )
     titles = [
-        "Duration",
         "Protocol",
         "Flags",
-        "Packets",
         "Bytes",
-        "Flows",
-        "Source Port",
         "Destination Port",
         "Bytes per Packet",
         "Packets per Second",
@@ -160,12 +183,21 @@ def prepare_df(raw_data):
         "Common Port Usage",
     ]
     df = df[titles]
-    df.drop(["Flows", "Duration", "Source Port", "Packets"], axis=1, inplace=True)
     return df
 
 
 def prepare_input(df):
+    """
+    Transforms categorical features 'Protocol' and 'Flags' in the DataFrame using pre-fitted encoders:
+    1. Attempts to transform the 'Protocol' column using a pre-fitted LabelEncoder. If the encoder encounters
+       an unknown label, it replaces those unknown labels with 'RTP' and retries the transformation.
+    2. Similarly, attempts to transform the 'Flags' column. If unknown labels are found, replaces them
+       with 'PAC_' before retrying the transformation.
+    Returns the modified DataFrame with encoded categorical features.
+    """
+
     try:
+        # Transform 'Protocol' with pre-fitted encoder; handle unknown labels
         df["Protocol"] = protocol_encoder.transform(df["Protocol"])
     except ValueError:
         # Replace unknown labels with "RTP"
@@ -174,9 +206,10 @@ def prepare_input(df):
         df["Protocol"] = protocol_encoder.transform(df["Protocol"])
 
     try:
+        # Transform 'Flags' with pre-fitted encoder; handle unknown labels
         df["Flags"] = flags_encoder.transform(df["Flags"])
     except ValueError:
-        # Replace unknown labels with "RTP"
+        # Replace unknown labels with "PAC_"
         unknown_flags_labels = ~df["Flags"].isin(flags_encoder.classes_)
         df.loc[unknown_flags_labels, "Flags"] = "PAC_"
         df["Flags"] = flags_encoder.transform(df["Flags"])
@@ -185,74 +218,63 @@ def prepare_input(df):
 
 
 def predict(input_data):
+    """
+    Predicts the class labels for given input data:
+    1. Scales the input data using a pre-fitted scaler to match the scale used during model training.
+    2. Makes predictions using a pre-trained model.
+    3. Transforms the predicted labels back to their original categorical form using a pre-fitted label encoder.
+    Returns the decoded predictions as the original categorical labels.
+    """
+
+    # Scale the input data to match training data scale
     scaled_input_data = scaler.transform(input_data)
+
+    # Make predictions using the pre-trained model
     prediction = model.predict(scaled_input_data)
+
+    # Decode the predictions to original labels
     return label_encoder.inverse_transform(prediction)
 
 
 def main():
+    """
+    Main execution function that listens for incoming data on a Redis subscription,
+    processes the data, makes predictions, and uploads results back to Redis:
+    1. Listens continuously for new messages on a Redis subscription.
+    2. For each new message, it loads the data into a DataFrame, preprocesses it, and prepares it for prediction.
+    3. Displays a notification for a new prediction attempt.
+    4. Converts the incoming data into a format suitable for the prediction model.
+    5. Uses the `predict` function to obtain predictions for the prepared data.
+    6. Converts the original message data into a DataFrame to be uploaded along with the prediction.
+    7. Uploads the original data and its prediction back to Redis.
+    8. Prints the prediction result.
+    """
+
+    # Listen for messages on the Redis subscription
     for message in pubsub.listen():
         if message["type"] == "message":
+            # Deserialize the incoming JSON data
             data = json.loads(message["data"])
+
+            # Prepare and clean the data
             df = prepare_df(data)
             input_data = prepare_input(pd.DataFrame(df.iloc[[0]]))
+
+            # Notify about the new prediction attempt
             print("\n\n########## New Prediction ##########")
             print(input_data)
+
+            # Predict using the prepared data
             prediction = predict(input_data)
-            input_data["id"] = data["id"]
-            index_values = range(len(data))
 
-            # Create the DataFrame with both data and index
+            # Create the DataFrame for uploading
             data = pd.DataFrame(data, [0])
+
+            # Upload the results back to Redis
             upload_to_redis(data.copy(), prediction)
+
+            # Print the prediction outcome
             print(f"{prediction[0]}")
-
-
-# def main():
-#     dff = df[df["Label"] == "Botnet"]
-#     dff = pd.DataFrame(dff.iloc[[24000]])
-#     dff.drop("Label", axis=1, inplace=True)
-#     print(dff)
-#     input_data = prepare_input(pd.DataFrame(dff.iloc[[0]]))
-#     data = {
-#         "Protocol": [10],
-#         "Flags": [28],
-#         "Bytes": [66.0],
-#         "Destination Port": [80],
-#         "Bytes per Packet": [66.0],
-#         "Packets per Second": [1000.0],
-#         "Bytes per Second": [66000.0],
-#         "Is Encrypted Traffic": [0],
-#         "Common Port Usage": [1],
-#     }
-#     input_data = pd.DataFrame(data)
-#     prediction = predict(input_data)
-#     # upload_to_redis(input_data["id"].copy(), prediction)
-#     print(f"{prediction}")
-
-
-# def main():
-#     data = {
-#         "id": "1714749086420-b2b7810a-4127-4df0-af2e-c2199845e225",
-#         "Duration": 73.30608129501343,
-#         "Protocol": "TCP",
-#         "Source IP": "192.168.1.13",
-#         "Source Port": 33199,
-#         "Destination IP": "192.229.221.95",
-#         "Destination Port": 80,
-#         "Flags": ["PA", "S", "A_"],
-#         "Packets": 3,
-#         "Bytes": 410,
-#         "Flows": 10,
-#     }
-#     df = prepare_df(pd.DataFrame(data))
-#     input_data = prepare_input(pd.DataFrame(df.iloc[[0]]))
-#     print("\n\n########## New Prediction ##########")
-#     print(input_data)
-#     prediction = predict(input_data)
-#     input_data["id"] = data["id"]
-#     # upload_to_redis(input_data["id"].copy(), prediction)
-#     print(f'{input_data["id"].copy()}: {prediction}')
 
 
 if __name__ == "__main__":
