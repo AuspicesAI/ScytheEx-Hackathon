@@ -30,17 +30,13 @@ protocol_decoder = protocol_encoder.inverse_transform
 flags_decoder = flags_encoder.inverse_transform
 label_decoder = label_encoder.inverse_transform
 
-print(
-    list(zip(label_encoder.classes_, label_encoder.transform(label_encoder.classes_)))
-)
-
 
 with open("models/Neris_LogReg_model.pkl", "rb") as model_file:
     model = pickle.load(model_file)
 
 
 # Setup Redis connection
-r = redis.Redis(host="5.tcp.eu.ngrok.io", port=16168, db=0)
+r = redis.Redis(host="3.84.243.99", port=6379, db=0)
 
 # Subscribe to the channelcd ai
 pubsub = r.pubsub()
@@ -50,19 +46,32 @@ print("Subscribed to 'packet_data'. Waiting for data...")
 
 
 def upload_to_redis(df, status):
-    redis_host = "2.tcp.eu.ngrok.io"
-    redis_port = 19900
+    redis_host = "3.84.243.99"
+    redis_port = 6380
     redis_db = 0
 
     # Add the array as a new column to the DataFrame
-    df["packet_status"] = status
+    df["Status"] = status
+    df = df[
+        [
+            "id",
+            "Duration",
+            "Protocol",
+            "Source IP",
+            "Source Port",
+            "Destination IP",
+            "Destination Port",
+            "Flags",
+            "Status",
+        ]
+    ]
+
+    # df["Status"] = "Neris.exe" if df["Status"] == "Botnet" else df["Status"]
     # Convert DataFrame to JSON for publishing
     df_json = df.to_json(orient="records")
 
     # Create a Redis connection
     r = redis.Redis(host=redis_host, port=redis_port, db=redis_db)
-
-    print(df)
 
     # Define the channel
     channel = "prediction_channel"
@@ -72,7 +81,7 @@ def upload_to_redis(df, status):
         r.publish(channel, df_json)
         print(f"Published updated DataFrame to Redis on channel '{channel}'.")
     except redis.exceptions.ConnectionError as e:
-        print(f"")
+        print(f"{e}")
 
 
 def prepare_df(raw_data):
@@ -84,7 +93,7 @@ def prepare_df(raw_data):
             # If conversion fails, return 0
             return 0
 
-    raw_data["Flags"] = raw_data["Flags"][-1]
+    raw_data["Flags"] = raw_data["Flags"][0]
     index_values = range(len(raw_data))
 
     # Create the DataFrame with both data and index
@@ -157,15 +166,12 @@ def prepare_df(raw_data):
 
 def prepare_input(df):
     try:
-        print(df["Protocol"])
         df["Protocol"] = protocol_encoder.transform(df["Protocol"])
     except ValueError:
         # Replace unknown labels with "RTP"
-        print(df["Protocol"])
         unknown_protocol_labels = ~df["Protocol"].isin(protocol_encoder.classes_)
         df.loc[unknown_protocol_labels, "Protocol"] = "RTP"
         df["Protocol"] = protocol_encoder.transform(df["Protocol"])
-        print(df["Protocol"])
 
     try:
         df["Flags"] = flags_encoder.transform(df["Flags"])
@@ -188,15 +194,18 @@ def main():
     for message in pubsub.listen():
         if message["type"] == "message":
             data = json.loads(message["data"])
-            print(f'{data["Destination IP"]}: {data["Source IP"]}')
             df = prepare_df(data)
             input_data = prepare_input(pd.DataFrame(df.iloc[[0]]))
             print("\n\n########## New Prediction ##########")
             print(input_data)
             prediction = predict(input_data)
             input_data["id"] = data["id"]
+            index_values = range(len(data))
+
+            # Create the DataFrame with both data and index
+            data = pd.DataFrame(data, [0])
             upload_to_redis(data.copy(), prediction)
-            print(f'{input_data["id"].copy()}: {prediction}')
+            print(f"{prediction[0]}")
 
 
 # def main():
@@ -236,7 +245,7 @@ def main():
 #         "Bytes": 410,
 #         "Flows": 10,
 #     }
-#     df = prepare_df(pd.DataFrame(data,index=[0]))
+#     df = prepare_df(pd.DataFrame(data))
 #     input_data = prepare_input(pd.DataFrame(df.iloc[[0]]))
 #     print("\n\n########## New Prediction ##########")
 #     print(input_data)
