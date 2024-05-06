@@ -89,4 +89,4 @@ Interested in contributing to ScytheEx? Please read our [CONTRIBUTE.md](CONTRIBU
 
 ## License
 
-This project is licensed under the Apache License 2.0. For more details, see the LICENSE file in the root directory of this project.
+This project is licensed under the GNU General Public License v3.0. For more details, see the LICENSE file in the root directory of this project.
