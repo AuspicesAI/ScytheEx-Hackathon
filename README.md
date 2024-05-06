@@ -85,7 +85,7 @@ ScytheEx integrates AI-driven analytics to detect activities post-attack, adheri
 
 ## How to Contribute
 
-Interested in contributing to ScytheEx? Please read our [CONTRIBUTE.md](CONTRIBUTE.md) and [DEVELOPMENT.md](https://github.com/AuspicesAI/ScytheEx/DEVELOPMENT.md) for guidelines on how to get involved in this project.
+Interested in contributing to ScytheEx? Please read our [CONTRIBUTE.md](CONTRIBUTE.md) and [DEVELOPMENT.md](DEVELOPMENT.md) for guidelines on how to get involved in this project.
 
 ## License
 
