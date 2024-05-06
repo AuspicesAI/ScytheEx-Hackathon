@@ -3,7 +3,7 @@ name = "scytheex-backend"
 version = "0.1.0"
 description = "ScytheEx Backend which connects other components to ensure a continuous workflow"
 authors = ["smadi0x86 <smadixd@gmail.com>"]
-license = "Apache"
+license = "GNU General Public License v3.0"
 
 [tool.poetry.dependencies]
 python = "^3.10"

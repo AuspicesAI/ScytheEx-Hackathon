@@ -3,7 +3,7 @@ name = "ScytheExThreatIntel"
 version = "0.1.0"
 description = ""
 authors = ["smadi0x86 <smadixd@gmail.com>"]
-license = "Apache"
+license = "GNU General Public License v3.0"
 
 [tool.poetry.dependencies]
 python = "^3.10"
