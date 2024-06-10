@@ -60,7 +60,7 @@ def connect_to_redis(host, port, db_index):
 
 def start_capture(config, traffic_logger, error_logger):
     try:
-        redis_client = connect_to_redis("3.84.243.99", 6379, 0)
+        redis_client = connect_to_redis("100.26.220.36", 6379, 0)
         sniff(
             iface=config["network_interface"],
             # filter="tcp port 80",

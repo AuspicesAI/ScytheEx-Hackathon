@@ -64,7 +64,7 @@ This script connects to a Redis server and subscribes to a specific channel to r
 """
 
 # Establish connection to Redis server
-r = redis.Redis(host="3.84.243.99", port=6379, db=0)
+r = redis.Redis(host="100.26.220.36", port=6379, db=0)
 
 # Subscribe to the 'packet_data' channel
 pubsub = r.pubsub()
@@ -86,7 +86,7 @@ def upload_to_redis(df, status):
     """
 
     # Redis server configuration
-    redis_host = "3.84.243.99"
+    redis_host = "100.26.220.36"
     redis_port = 6380
     redis_db = 0
 

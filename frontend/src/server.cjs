@@ -6,18 +6,31 @@ const cors = require("cors");
 const { Server } = require("socket.io");
 
 const app = express();
-app.use(cors()); // This sets up CORS for all routes and methods.
+const allowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST"],
+  })
+);
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173", // Specify the client origin explicitly
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
   },
 });
 
 const redisClient = createClient({
-  url: "redis://3.84.243.99:6380",
+  url: "redis://100.26.220.36:6380",
 });
 
 async function startServer() {
