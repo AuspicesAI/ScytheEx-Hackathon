@@ -1,0 +1,3 @@
+interface: eth0
+elasticsearch_host: http://localhost:9200
+log_level: info

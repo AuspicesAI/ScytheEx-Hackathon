@@ -1,0 +1,10 @@
+[Unit]
+Description=ScytheEx Agent
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/scytheex-agent
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
