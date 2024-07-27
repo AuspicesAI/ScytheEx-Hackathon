@@ -28,7 +28,6 @@ export const useRedisSubscriber = () => {
 
     // Subscribe to the data stream from the server
     socket.on("new-data", (newData) => {
-      console.log(newData);
       const formattedData = {
         id: newData[0]["id"] || "N/A",
         duration: newData[0]["Duration"] || "N/A",
@@ -47,14 +46,11 @@ export const useRedisSubscriber = () => {
       });
     });
 
-    console.log("new-data");
-
     // Clean up the effect
     return () => {
       socket.off("new-data");
       socket.close();
     };
   }, [socket]); // Include socket in dependency array to handle clean up correctly
-  console.log(rows);
   return rows;
 };
