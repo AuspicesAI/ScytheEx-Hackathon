@@ -19,56 +19,7 @@ To contribute effectively, set up your development environment according to the 
 
 Development tasks are categorized by project modules to streamline the contribution process.
 
-### AI and Analytics (ai/)
-
-- **Automate Malware PCAP Data Handling**:
-  - Develop a script to periodically download malware PCAP files from trusted sources.
-  - Create a parser to extract relevant features from PCAP files for AI training.
-  - Automate the retraining process of AI models with new datasets to adapt to evolving threats.
-
-### Backend Services (backend/)
-
-- **Dynamic Configuration Implementation**:
-
-  - Build a system in `backend/core/` for dynamically loading and applying changes from `config.toml` without system restarts.
-  - Ensure components like `redis_publisher.py` and `redis_subscriber.py` adapt to configuration changes in real-time.
-
-### Web and Visualization (frontend/)
-
-- **Dashboard Enhancements**:
-  - Upgrade the dashboard to effectively display real-time data on traffic and threats.
-  - Implement user-customizable features for visualizing reports and alerts.
-
-### Threat Intelligence (backend/intelligence/)
-
-- **Integrate Threat Intelligence Feeds**:
-  - Enable configuration of custom and default threat intelligence sources through `config.toml`.
-  - Utilize external APIs like VirusTotal and Hybrid Analysis to enhance detection capabilities.
-
-### Configuration and Deployment
-
-- **Kubernetes and Helm**:
-  - Setup Helm charts for deploying ScytheEx on Kubernetes clusters.
-  - ScytheEx should be deployed as daemonset on all nodes in the cluster.
-
-## Testing
-
-- Develop and run comprehensive tests for all new features or updates using `pytest` for backend and AI components, and `jest` for frontend testing.
-- Ensure all tests pass before submitting pull requests.
-
-## Code Style and Contribution Guidelines
-
-- Follow PEP8 standards for Python code and adhere to best practices for TypeScript.
-- Document all changes comprehensively; use clear, descriptive commit messages.
-
-## Continuous Integration
-
-- Implement CI workflows with GitHub Actions to automate tests, lint checks, and builds upon new commits and pull requests.
-
-## Documentation
-
-- Keep all project documentation current to reflect feature changes or additions.
-- Maintain high-quality inline and API documentation for ease of maintenance and future development.
+Huge changes coming soon...
 
 ## Future Directions
 
