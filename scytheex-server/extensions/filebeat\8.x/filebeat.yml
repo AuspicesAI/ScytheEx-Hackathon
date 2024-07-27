@@ -1,0 +1,14 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/scytheex/agent_data.log
+
+output.elasticsearch:
+  hosts: ["https://localhost:9200"]
+  ssl.verification_mode: "none"
+  username: "elastic"
+  password: "" # Change this to your actual password
+
+setup.kibana:
+  host: "localhost:5601"

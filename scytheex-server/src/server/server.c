@@ -37,7 +37,7 @@ void start_server(const Config *config)
     setup_database(&db);
 
     // Open log file for writing received data
-    log_file = fopen("received_data.log", "a");
+    log_file = fopen("/var/log/scytheex/agent_data.log", "a");
     if (log_file == NULL)
     {
         log_message(LOG_ERROR, "Failed to open log file");

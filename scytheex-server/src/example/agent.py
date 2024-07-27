@@ -24,7 +24,7 @@ def send_data_to_server(data, server_ip, server_port):
 
 if __name__ == "__main__":
     server_ip = "127.0.0.1"
-    server_port = 5000
+    server_port = 8080
 
     while True:
         data = generate_data()
