@@ -252,6 +252,15 @@ def predict(input_data):
     return label_encoder.inverse_transform(prediction)
 
 
+def check_blacklist(data):
+    blacklist = ["192.168.0.1"]
+
+    if data["Source IP"] or data["Destination IP"] in blacklist:
+        return True
+    else:
+        return False
+
+
 def main():
     """
     Main execution function that listens for incoming data on a Redis subscription,
@@ -280,17 +289,20 @@ def main():
             print("\n\n########## New Prediction ##########")
             print(input_data)
 
-            # Predict using the prepared data
-            prediction = predict(input_data)
+            if check_blacklist(input_data):
+                continue
+            else:
+                # Predict using the prepared data
+                prediction = predict(input_data)
 
-            # Create the DataFrame for uploading
-            data = pd.DataFrame(data, [0])
+                # Create the DataFrame for uploading
+                data = pd.DataFrame(data, [0])
 
-            # Upload the results back to Redis
-            upload_to_redis(data.copy(), prediction)
+                # Upload the results back to Redis
+                upload_to_redis(data.copy(), prediction)
 
-            # Print the prediction outcome
-            print(f"{prediction[0]}")
+                # Print the prediction outcome
+                print(f"{prediction[0]}")
 
 
 if __name__ == "__main__":
