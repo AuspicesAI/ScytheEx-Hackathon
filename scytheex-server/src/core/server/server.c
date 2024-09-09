@@ -4,12 +4,12 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <pthread.h>
-#include "analysisd.h"
 #include "config.h"
 #include "logging.h"
 #include "db.h"
-#include "events.h"
-#include "alerts.h"
+#include "rules-loader.h"
+#include "rule-engine.h"
+#include "decoders.h"
 
 #define BUFFER_SIZE 1024
 
@@ -44,6 +44,15 @@ void start_server(const Config *config)
         close_database(&db);
         exit(EXIT_FAILURE);
     }
+
+    // Load rules from the directory (e.g., sshd_rules.xml, syslog_rules.xml)
+    if (load_rules_from_directory("../../rulesets/rules") != 0)
+    {
+        log_message(LOG_ERROR, "Failed to load rules");
+        exit(EXIT_FAILURE);
+    }
+
+    log_message(LOG_INFO, "Loaded %d rules from directory", rule_count);
 
     // Create socket
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
@@ -115,12 +124,32 @@ void *handle_client(void *arg)
     char buffer[BUFFER_SIZE] = {0};
     int bytes_read;
 
-    while ((bytes_read = read(socket, buffer, BUFFER_SIZE)) > 0)
+    while ((bytes_read = read(socket, buffer, BUFFER_SIZE - 1)) > 0)
     {
+        buffer[bytes_read] = '\0'; // Ensure null-terminated string
         log_message(LOG_INFO, "Received data: %s", buffer);
 
-        // Analyze the received event
-        analyze_event(&db, buffer);
+        // Decode the log data
+        DecodedLog decoded_log;
+
+        // Check if the log contains SSH-related content
+        if (strstr(buffer, "sshd") || strstr(buffer, "protocol") || strstr(buffer, "Failed password") || strstr(buffer, "Accepted password"))
+        {
+            decode_ssh_log(buffer, &decoded_log);
+        }
+        // Check if the log contains syslog-related content
+        else if (strstr(buffer, "Segmentation Fault") || strstr(buffer, "Couldn't open /etc/securetty") || strstr(buffer, "error"))
+        {
+            decode_syslog_log(buffer, &decoded_log);
+        }
+        else
+        {
+            log_message(LOG_ERROR, "Unknown log type");
+            continue;
+        }
+
+        // Apply the rules to the decoded log
+        apply_detection_rules(&decoded_log);
 
         // Write the received data to the log file
         fprintf(log_file, "%s\n", buffer);

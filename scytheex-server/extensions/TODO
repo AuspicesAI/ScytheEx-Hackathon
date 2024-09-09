@@ -1,0 +1,5 @@
+Don't forget in the installation of server docs to create a script that moves our filebeat config to /etc/filebeat/filebeat.yml and then restarts filebeat.
+
+Also, make sure to tell user to generate his password using /usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto and then to update the password in the filebeat config.
+
+The kibana dashboard can be accessible but we will offer a custom eui dashboard that will be available in the scytheex dashboard.

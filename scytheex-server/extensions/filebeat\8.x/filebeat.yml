@@ -8,7 +8,7 @@ output.elasticsearch:
   hosts: ["https://localhost:9200"]
   ssl.verification_mode: "none"
   username: "elastic"
-  password: "" # Change this to your actual password
+  password: "Rh+ovK8cYi+4uDMKZAYp" # Change this to your actual password and move to /etc/filebeat/filebeat.yml
 
 setup.kibana:
   host: "localhost:5601"

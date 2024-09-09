@@ -8,9 +8,10 @@ int main()
     Config config = {0};
 
     // Load configuration
-    if (load_config("../config/scytheex.conf", &config) != 0)
+    if (load_config("../core/config/scytheex.conf", &config) != 0)
     {
         fprintf(stderr, "Failed to load configuration\n");
+
         return EXIT_FAILURE;
     }
 

@@ -106,7 +106,7 @@ xpack.security.transport.ssl:
   truststore.path: certs/transport.p12
 # Create a new cluster with the current node only
 # Additional nodes can still join the cluster later
-cluster.initial_master_nodes: ["ssmadi"]
+cluster.initial_master_nodes: ["scytheex-user"]
 
 # Allow HTTP API connections from anywhere
 # Connections are encrypted and require user authentication
